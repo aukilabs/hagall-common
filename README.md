@@ -1,0 +1,1 @@
+# hagall-common
