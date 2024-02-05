@@ -15,7 +15,7 @@ import (
 
 	"github.com/aukilabs/hagall-common/crypt"
 	"github.com/aukilabs/hagall-common/errors"
-	hailhttp "github.com/aukilabs/hagall-common/http"
+	httpcmn "github.com/aukilabs/hagall-common/http"
 	"github.com/aukilabs/hagall-common/logs"
 	"github.com/aukilabs/hagall-common/models"
 	hsmoketest "github.com/aukilabs/hagall-common/smoketest"
@@ -165,7 +165,7 @@ func (c *Client) UserAuth(ctx context.Context, in models.UserAuthIn) (models.Use
 	)
 
 	if c.clientID != "" {
-		req.Header.Set(hailhttp.HeaderPosemeshClientID, c.clientID)
+		req.Header.Set(httpcmn.HeaderPosemeshClientID, c.clientID)
 	}
 
 	if err != nil {
@@ -186,7 +186,7 @@ func (c *Client) VerifyUserAuth(token string) error {
 		return errors.New("hagall server is not registered")
 	}
 
-	if err := hailhttp.VerifyHagallUserAccessToken(token, secret); err != nil {
+	if err := httpcmn.VerifyHagallUserAccessToken(token, secret); err != nil {
 		return errors.New("verifying access token failed").Wrap(err)
 	}
 	return nil
@@ -195,7 +195,7 @@ func (c *Client) VerifyUserAuth(token string) error {
 // PostServer registers a server to HDS.
 func (c *Client) PostServer(ctx context.Context, in models.PostServerIn) error {
 	if in.State == "" {
-		in.State = hailhttp.MakeJWTSecret()
+		in.State = httpcmn.MakeJWTSecret()
 	}
 	c.setRegistrationState(in.State)
 
@@ -218,12 +218,12 @@ func (c *Client) PostServer(ctx context.Context, in models.PostServerIn) error {
 // path.
 func (c *Client) HandleServerRegistration(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		hailhttp.MethodNotAllowed(w)
+		httpcmn.MethodNotAllowed(w)
 		return
 	}
 
 	if c.Secret() != "" {
-		hailhttp.Forbidden(w, errors.New("server registration failed").
+		httpcmn.Forbidden(w, errors.New("server registration failed").
 			WithTag("reason", "server is already registered").
 			WithTag("warning", "Did you or someone else just try to register the same address from another Hagall instance?"))
 		return
@@ -231,29 +231,29 @@ func (c *Client) HandleServerRegistration(w http.ResponseWriter, r *http.Request
 
 	expectedRegistrationState := c.GetRegistrationState()
 	if expectedRegistrationState == "" {
-		hailhttp.Forbidden(w, errors.New("non initiated server registration").
+		httpcmn.Forbidden(w, errors.New("non initiated server registration").
 			WithTag("warning", "Did you or someone else just try to register the same address from another Hagall instance?"))
 		return
 	}
 
-	if registrationState := r.Header.Get(hailhttp.HeaderHagallRegistrationStateKey); registrationState != expectedRegistrationState {
-		hailhttp.Forbidden(w, errors.New("server registration failed").
+	if registrationState := r.Header.Get(httpcmn.HeaderHagallRegistrationStateKey); registrationState != expectedRegistrationState {
+		httpcmn.Forbidden(w, errors.New("server registration failed").
 			WithTag("current_registration_state", registrationState).
 			WithTag("expected_registration_state", expectedRegistrationState).
 			WithTag("warning", "Did you or someone else just try to register the same address from another Hagall instance?"))
 		return
 	}
 
-	id := r.Header.Get(hailhttp.HeaderHagallIDKey)
+	id := r.Header.Get(httpcmn.HeaderHagallIDKey)
 	if id == "" {
-		hailhttp.BadRequest(w, errors.New("server registration failed").
+		httpcmn.BadRequest(w, errors.New("server registration failed").
 			WithTag("server_id", id))
 		return
 	}
 
-	secret := r.Header.Get(hailhttp.HeaderHagallJWTSecretHeaderKey)
+	secret := r.Header.Get(httpcmn.HeaderHagallJWTSecretHeaderKey)
 	if secret == "" {
-		hailhttp.BadRequest(w, errors.New("server registration failed").
+		httpcmn.BadRequest(w, errors.New("server registration failed").
 			WithTag("server_id", id).
 			WithTag("server_secret", secret))
 		return
@@ -262,7 +262,7 @@ func (c *Client) HandleServerRegistration(w http.ResponseWriter, r *http.Request
 	c.SetLastHealthCheck(time.Now())
 	c.setRegistrationStatus(RegistrationStatusRegistered)
 
-	hailhttp.OK(w)
+	httpcmn.OK(w)
 
 	logs.WithTag("server_id", id).
 		WithTag("status", c.GetRegistrationStatus()).
@@ -274,18 +274,18 @@ func (c *Client) HandleServerRegistration(w http.ResponseWriter, r *http.Request
 // This handler is meant to be used by a Hagall server under the /health path.
 func (c *Client) HandleHealthCheck(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		hailhttp.MethodNotAllowed(w)
+		httpcmn.MethodNotAllowed(w)
 		return
 	}
 
-	token, err := hailhttp.SignIdentity(c.HagallEndpoint, c.Secret())
+	token, err := httpcmn.SignIdentity(c.HagallEndpoint, c.Secret())
 	if err != nil {
-		hailhttp.InternalServerError(w, errors.New("signing response failed").Wrap(err))
+		httpcmn.InternalServerError(w, errors.New("signing response failed").Wrap(err))
 		return
 	}
 
-	w.Header().Set("Authorization", hailhttp.MakeAuthorizationHeader(token))
-	hailhttp.OK(w)
+	w.Header().Set("Authorization", httpcmn.MakeAuthorizationHeader(token))
+	httpcmn.OK(w)
 
 	c.SetLastHealthCheck(time.Now())
 	logs.Debug("health check ok")
@@ -422,11 +422,11 @@ func (c *Client) GetWithAuth(ctx context.Context, path, appKey, appSecret string
 	req.SetBasicAuth(appKey, appSecret)
 
 	if len(c.RemoteAddr) > 0 {
-		req.Header.Set(hailhttp.XForwardedForHeaderKey, c.RemoteAddr)
+		req.Header.Set(httpcmn.XForwardedForHeaderKey, c.RemoteAddr)
 	}
 
 	if len(c.clientID) > 0 {
-		req.Header.Set(hailhttp.HeaderPosemeshClientID, c.clientID)
+		req.Header.Set(httpcmn.HeaderPosemeshClientID, c.clientID)
 	}
 
 	return c.do(req, out)
@@ -450,7 +450,7 @@ func (c *Client) Post(ctx context.Context, path string, in interface{}) error {
 	req.Header.Set("Content-Type", "application/json")
 
 	if len(c.RemoteAddr) > 0 {
-		req.Header.Set(hailhttp.XForwardedForHeaderKey, c.RemoteAddr)
+		req.Header.Set(httpcmn.XForwardedForHeaderKey, c.RemoteAddr)
 	}
 
 	return c.do(req, nil)
@@ -478,11 +478,11 @@ func (c *Client) do(req *http.Request, out interface{}) error {
 	secret := c.Secret()
 	authorization := req.Header.Get("Authorization")
 	if authorization == "" && secret != "" {
-		token, err := hailhttp.SignIdentity(c.HagallEndpoint, secret)
+		token, err := httpcmn.SignIdentity(c.HagallEndpoint, secret)
 		if err != nil {
 			return errors.New("signing request failed").Wrap(err)
 		}
-		req.Header.Set("Authorization", hailhttp.MakeAuthorizationHeader(token))
+		req.Header.Set("Authorization", httpcmn.MakeAuthorizationHeader(token))
 	}
 
 	res, err := c.Transport.RoundTrip(req)

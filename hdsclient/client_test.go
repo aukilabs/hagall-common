@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	hailhttp "github.com/aukilabs/hagall-common/http"
+	httpcmn "github.com/aukilabs/hagall-common/http"
 	"github.com/aukilabs/hagall-common/logs"
 	"github.com/stretchr/testify/require"
 )
@@ -28,7 +28,7 @@ func TestClientHandleRegistration(t *testing.T) {
 		c.setRegistrationState("hello")
 
 		req := httptest.NewRequest(http.MethodPost, "/", nil)
-		req.Header.Set(hailhttp.HeaderHagallRegistrationStateKey, "bye")
+		req.Header.Set(httpcmn.HeaderHagallRegistrationStateKey, "bye")
 
 		res := httptest.NewRecorder()
 

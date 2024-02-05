@@ -4,20 +4,20 @@ import (
 	"crypto/ecdsa"
 	"net/http"
 
-	hailhttp "github.com/aukilabs/hagall-common/http"
+	httpcmn "github.com/aukilabs/hagall-common/http"
 )
 
 type ClientOpts func(*Client)
 
 func WithHagallEndpoint(v string) ClientOpts {
 	return func(c *Client) {
-		c.HagallEndpoint = hailhttp.NormalizeEndpoint(v)
+		c.HagallEndpoint = httpcmn.NormalizeEndpoint(v)
 	}
 }
 
 func WithHDSEndpoint(v string) ClientOpts {
 	return func(c *Client) {
-		c.HDSEndpoint = hailhttp.NormalizeEndpoint(v)
+		c.HDSEndpoint = httpcmn.NormalizeEndpoint(v)
 	}
 }
 

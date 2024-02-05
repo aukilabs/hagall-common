@@ -20,6 +20,7 @@ type RunSmokeTestOptions struct {
 	ToEndpointToken    string
 	Timeout            time.Duration
 	MaxSessionIDLength int
+	UserAgent          string
 }
 
 func RunSmokeTest(ctx context.Context, opts RunSmokeTestOptions) (SmokeTestResults, error) {
@@ -40,7 +41,7 @@ func RunSmokeTest(ctx context.Context, opts RunSmokeTestOptions) (SmokeTestResul
 		return stRes, errors.New("creating websocket config failed").Wrap(err)
 	}
 	cfg.Header.Set("Authorization", "Bearer "+opts.ToEndpointToken)
-	cfg.Header.Set("User-Agent", "SmokeTest (Go WebSocket Client golang.org/x/net/websocket)")
+	cfg.Header.Set("User-Agent", opts.UserAgent)
 
 	conn, err := websocket.DialConfig(cfg)
 	if err != nil {
@@ -127,7 +128,6 @@ func RunSmokeTest(ctx context.Context, opts RunSmokeTestOptions) (SmokeTestResul
 
 				if res.EntityId == 0 {
 					return errors.New("empty entity id").
-						WithTag("request_id", 2).
 						WithTag("timestamp", msg.Time)
 				}
 				measure.end()
