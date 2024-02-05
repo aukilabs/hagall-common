@@ -1,0 +1,857 @@
+syntax = "proto3";
+
+package hagall;
+
+// https://developers.google.com/protocol-buffers/docs/reference/java/com/google/protobuf/Timestamp
+import "google/protobuf/timestamp.proto";
+
+option go_package = "pkg/messages/hagallpb";
+option csharp_namespace = "Auki.ConjureKit.Hagall.Protobuf.Gen";
+option objc_class_prefix = "Hagall";
+
+// Participant represents a Hagall client connected from a WebSocket.
+message Participant {
+  // The participant id.
+  uint32 id = 1;
+}
+
+// An entity that have a pose in a session.
+message Entity {
+  // The entity id.
+  uint32 id = 1;
+
+  // The id of the participant who owns the entity.
+  uint32 participant_id = 2;
+
+  // The pose in the current session.
+  Pose pose = 3;
+
+  // The entity flag.
+  EntityFlag flag = 4;
+}
+
+// EntityFlag represents a flag that gives context to an entity.
+//
+// Note: this is currently only used to be able to tell what entity represents
+// a participant, used for toggling rendering of participant entities assets.
+enum EntityFlag {
+  ENTITY_FLAG_EMPTY = 0;
+  ENTITY_FLAG_PARTICIPANT_ENTITY = 1;
+}
+
+// Pose represents a position within a session.
+message Pose {
+  float px = 1;
+  float py = 2;
+  float pz = 3;
+  float rx = 4;
+  float ry = 5;
+  float rz = 6;
+  float rw = 7;
+}
+
+// Msg represents a message passed between Hagall and its clients through a
+// WebSocket.
+message Msg {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// MsgType represents the type of message passed between Hagall and a client.
+//
+// Note that enum values are prefixed because protobuf enum values use C++
+// scoping rules, meaning that enum values are siblings of their type, not
+// children of it. Therefore, enum values must be unique within "hagall_proto",
+// not just within "MsgType".
+enum MsgType {
+  MSG_TYPE_ERROR_RESPONSE = 0;
+
+  MSG_TYPE_SYNC_CLOCK = 1;
+
+  MSG_TYPE_SESSION_STATE = 2;
+
+  MSG_TYPE_PARTICIPANT_JOIN_REQUEST = 3;
+  MSG_TYPE_PARTICIPANT_JOIN_RESPONSE = 4;
+  MSG_TYPE_PARTICIPANT_JOIN_BROADCAST = 5;
+
+  MSG_TYPE_PARTICIPANT_LEAVE_REQUEST = 6;
+  MSG_TYPE_PARTICIPANT_LEAVE_BROADCAST = 7;
+
+  MSG_TYPE_ENTITY_ADD_REQUEST = 8;
+  MSG_TYPE_ENTITY_ADD_RESPONSE = 9;
+  MSG_TYPE_ENTITY_ADD_BROADCAST = 10;
+
+  MSG_TYPE_ENTITY_DELETE_REQUEST = 11;
+  MSG_TYPE_ENTITY_DELETE_RESPONSE = 12;
+  MSG_TYPE_ENTITY_DELETE_BROADCAST = 13;
+
+  MSG_TYPE_ENTITY_UPDATE_POSE = 14;
+  MSG_TYPE_ENTITY_UPDATE_POSE_BROADCAST = 15;
+
+  MSG_TYPE_CUSTOM_MESSAGE = 16;
+  MSG_TYPE_CUSTOM_MESSAGE_BROADCAST = 17;
+
+  MSG_TYPE_ENTITY_COMPONENT_TYPE_ADD_REQUEST = 18;
+  MSG_TYPE_ENTITY_COMPONENT_TYPE_ADD_RESPONSE = 19;
+
+  MSG_TYPE_ENTITY_COMPONENT_TYPE_GET_NAME_REQUEST = 20;
+  MSG_TYPE_ENTITY_COMPONENT_TYPE_GET_NAME_RESPONSE = 21;
+
+  MSG_TYPE_ENTITY_COMPONENT_TYPE_GET_ID_REQUEST = 22;
+  MSG_TYPE_ENTITY_COMPONENT_TYPE_GET_ID_RESPONSE = 23;
+
+  MSG_TYPE_ENTITY_COMPONENT_ADD_REQUEST = 24;
+  MSG_TYPE_ENTITY_COMPONENT_ADD_RESPONSE = 25;
+  MSG_TYPE_ENTITY_COMPONENT_ADD_BROADCAST = 26;
+
+  MSG_TYPE_ENTITY_COMPONENT_DELETE_REQUEST = 27;
+  MSG_TYPE_ENTITY_COMPONENT_DELETE_RESPONSE = 28;
+  MSG_TYPE_ENTITY_COMPONENT_DELETE_BROADCAST = 29;
+
+  MSG_TYPE_ENTITY_COMPONENT_UPDATE = 30;
+  MSG_TYPE_ENTITY_COMPONENT_UPDATE_BROADCAST = 31;
+
+  MSG_TYPE_ENTITY_COMPONENT_LIST_REQUEST = 32;
+  MSG_TYPE_ENTITY_COMPONENT_LIST_RESPONSE = 33;
+
+  MSG_TYPE_ENTITY_COMPONENT_TYPE_SUBSCRIBE_REQUEST = 34;
+  MSG_TYPE_ENTITY_COMPONENT_TYPE_SUBSCRIBE_RESPONSE = 35;
+
+  MSG_TYPE_ENTITY_COMPONENT_TYPE_UNSUBSCRIBE_REQUEST = 36;
+  MSG_TYPE_ENTITY_COMPONENT_TYPE_UNSUBSCRIBE_RESPONSE = 37;
+
+  MSG_TYPE_PING_REQUEST = 38;
+  MSG_TYPE_PING_RESPONSE = 39;
+
+  MSG_TYPE_RECEIPT_REQUEST = 40;
+  MSG_TYPE_RECEIPT_RESPONSE = 41;
+
+  reserved 100 to max;
+}
+
+// Error represents a request status code given with Hagall responses.
+//
+// Note that enum values are prefixed because protobuf enum values use C++
+// scoping rules, meaning that enum values are siblings of their type, not
+// children of it. Therefore, enum values must be unique within "hagall_proto",
+// not just within "ErrorCode".
+enum ErrorCode {
+  ERROR_CODE_UNKNOWN = 0; // copy paste the resason why use prefix.
+  ERROR_CODE_BAD_REQUEST = 400;
+  ERROR_CODE_UNAUTHORIZED = 401;
+  ERROR_CODE_NOT_FOUND = 404;
+  ERROR_CODE_CONFLICT = 409;
+  ERROR_CODE_TOO_LARGE = 413;
+  ERROR_CODE_SESSION_NOT_JOINED = 460;
+  ERROR_CODE_SESSION_ALREADY_JOINED = 461;
+  ERROR_CODE_INTERNAL_SERVER_ERROR = 500;
+  ERROR_CODE_NOT_IMPLEMENTED = 501;
+  ERROR_CODE_SERVER_TOO_BUSY = 503;
+}
+
+// Request represents a client request.
+message Request {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+}
+
+// Response represents a message returned in response to a request.
+message Response {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+}
+
+// ErrorResponse represents a message returned when a request error occurs.
+message ErrorResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The error code.
+  ErrorCode code = 3;
+}
+
+// SyncClock represents a message periodically sent by a Hagall server to ping a
+// client.
+message SyncClock {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+}
+
+// SessionState represents a session state.
+message SessionState {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The participants that joined the session.
+  repeated Participant participants = 3;
+
+  // The entities present in the session.
+  repeated Entity entities = 4;
+
+  // The entity components present in the session.
+  repeated EntityComponent entity_components = 5;
+}
+
+// ParticipantJoinRequest represents a message for a client to request joining a
+// session.
+//
+// It returns an error when the request is sent while the participant is already
+// in a session.
+message ParticipantJoinRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The id of the session to join. A new session is joined when this field is
+  // left empty.
+  string session_id = 3;
+}
+
+// ParticipantJoinResponse represents a message returned in response to a
+// participant join request.
+message ParticipantJoinResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The id of the joined session.
+  string session_id = 3;
+
+  // The participant id given to the requester.
+  uint32 participant_id = 4;
+
+  // The UUID of the session
+  string session_uuid = 5;
+}
+
+// ParticipantJoinBroadcast represents a message that notifies that a
+// participant joined the current session.
+message ParticipantJoinBroadcast {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The timestamp of the request that triggered the broadcast.
+  google.protobuf.Timestamp origin_timestamp = 3;
+
+  // The id of the participant that joined the current session.
+  uint32 participant_id = 4;
+}
+
+// ParticipantLeaveRequest represents a message for a client to leave the
+// current session.
+message ParticipantLeaveRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+}
+
+// ParticipantLeaveRequest represents a message that notifies that a participant
+// left the current session.
+message ParticipantLeaveBroadcast {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The timestamp of the request that triggered the broadcast.
+  google.protobuf.Timestamp origin_timestamp = 3;
+
+  // The id of the participant that left the session.
+  uint32 participant_id = 4;
+}
+
+// EntityAddRequest represents a message to add an entity into the current
+// session.
+message EntityAddRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The initial pose of the entity.
+  Pose pose = 3;
+
+  // A boolean that reports whether the entity is deleted when its owner
+  // (a participant) leaves the current session.
+  bool persist = 4;
+
+  // The entity flag that gives context to the entity.
+  EntityFlag flag = 5;
+}
+
+// EntityAddResponse represents a message returned in response to an entity add
+// request.
+message EntityAddResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity id.
+  uint32 entity_id = 3;
+}
+
+// EntityAddBroadcast represents a message that notifies that an entity has been
+// added to the current session.
+message EntityAddBroadcast {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The timestamp of the request that triggered the broadcast.
+  google.protobuf.Timestamp origin_timestamp = 3;
+
+  // The added entity.
+  Entity entity = 4;
+}
+
+// EntityDeleteRequest represents a message to delete an entity from the current
+// session.
+message EntityDeleteRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity id.
+  uint32 entity_id = 3;
+}
+
+// EntityDeleteResponse represents a message returned in response to an entity
+// delete request.
+//
+// Clients should also delete the resources associated with the entity, such as
+// asset instances.
+message EntityDeleteResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+}
+
+// EntityDeleteBroadcast represents a message that notifies that an entity has
+// been deleted from the current session.
+//
+// Clients should also delete the resources associated with the entity, such as
+// asset instances.
+message EntityDeleteBroadcast {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The timestamp of the request that triggered the broadcast.
+  google.protobuf.Timestamp origin_timestamp = 3;
+
+  // The id of the deleted entity.
+  uint32 entity_id = 4;
+}
+
+// EntityUpdatePoseRequest represents a message to update an entity pose in the
+// current session.
+message EntityUpdatePose {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id of the entity to update.
+  uint32 entity_id = 3;
+
+  // The updated entity pose.
+  Pose pose = 4;
+}
+
+// EntityUpdatePoseBroadcast represents a message that notifies an entity pose
+// update within the current session.
+message EntityUpdatePoseBroadcast {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The timestamp of the request that triggered the broadcast.
+  google.protobuf.Timestamp origin_timestamp = 3;
+
+  // The entity id.
+  uint32 entity_id = 4;
+
+  // The updated pose.
+  Pose pose = 5;
+}
+
+// CustomMessage represents a message to send a custom message to one or many
+// other participants.
+message CustomMessage {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The ids of the participants who will receive the message. The message is
+  // sent to all participants when empty.
+  repeated uint32 participant_ids = 3;
+
+  // The message body.
+  bytes body = 4;
+}
+
+// CustomMessageBroadcast represents a message that notifies a participant that
+// a custom message has been sent.
+message CustomMessageBroadcast {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The timestamp of the request that triggered the broadcast.
+  google.protobuf.Timestamp origin_timestamp = 3;
+
+  // The id of the participant that sent the message.
+  uint32 participant_id = 4;
+
+  // The message body.
+  bytes body = 5;
+}
+
+// An entity component.
+message EntityComponent {
+  // The entity component type id.
+  uint32 entity_component_type_id = 1;
+
+  // The entity id.
+  uint32 entity_id = 2;
+
+  // The component data.
+  bytes data = 3;
+}
+
+// EntityComponentTypeAddRequest represents a message for a client to add and
+// entity component type. It returns an error when the named entity component
+// type has already been added.
+message EntityComponentTypeAddRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity component type name.
+  string entity_component_type_name = 3;
+}
+
+// EntityComponentTypeAddResponse represents a message returned in response to
+// an entity component type add request.
+message EntityComponentTypeAddResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity component type id.
+  uint32 entity_component_type_id = 3;
+}
+
+// EntityComponentTypeGetNameRequest represents a message for a client to
+// request a component name. It returns an error when there is no entity
+// component type with the given entity component id.
+message EntityComponentTypeGetNameRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity component type id.
+  uint32 entity_component_type_id = 3;
+}
+
+// EntityComponentTypeGetNameResponse represents a message returned in response
+// to a get entity component type name request.
+message EntityComponentTypeGetNameResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity component type name.
+  string entity_component_type_name = 3;
+}
+
+// EntityComponentTypeGetIdRequest represents a message for a client to request
+// a component id. It returns an error when there is no component registered
+// with the given name.
+message EntityComponentTypeGetIdRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity component type name.
+  string entity_component_type_name = 3;
+}
+
+// EntityComponentTypeGetIdResponse represents a message returned in response to
+// a get entity component type id request.
+message EntityComponentTypeGetIdResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity component type id.
+  uint32 entity_component_type_id = 3;
+}
+
+// EntityComponentAddRequest represents a message for a client to add an entity
+// component. It returns an error when an entity does not exist or when an
+// entity component is not registered.
+message EntityComponentAddRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity component type id.
+  uint32 entity_component_type_id = 3;
+
+  // The entity id.
+  uint32 entity_id = 4;
+
+  // The component data.
+  bytes data = 5;
+}
+
+// EntityComponentAddResponse represents a message returned in response to an
+// add entity component id request.
+message EntityComponentAddResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+}
+
+// EntityComponentAddBroadcast represents a message that notifies that an entity
+// component has been added.
+message EntityComponentAddBroadcast {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The timestamp of the request that triggered the broadcast.
+  google.protobuf.Timestamp origin_timestamp = 3;
+
+  // The entity component.
+  EntityComponent entity_component = 4;
+}
+
+// EntityComponentDeleteRequest represents a message for a client to delete an
+// entity component.
+message EntityComponentDeleteRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity component type id.
+  uint32 entity_component_type_id = 3;
+
+  // The entity id.
+  uint32 entity_id = 4;
+}
+
+// EntityComponentDeleteResponse represents a message returned in response to a
+// delete entity component id request.
+message EntityComponentDeleteResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+}
+
+// EntityComponentDeleteBroadcast represents a message that notifies that an
+// entity component has been deleted.
+message EntityComponentDeleteBroadcast {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The timestamp of the request that triggered the broadcast.
+  google.protobuf.Timestamp origin_timestamp = 3;
+
+  // The entity component.
+  EntityComponent entity_component = 4;
+}
+
+// EntityComponentUpdate represents a message to update an added entity
+// component. The update is silently aborted when the entity component has not
+// been previously added.
+message EntityComponentUpdate {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The entity component type id.
+  uint32 entity_component_type_id = 3;
+
+  // The entity id.
+  uint32 entity_id = 4;
+
+  // The component data.
+  bytes data = 5;
+}
+
+// EntityComponentUpdateBroadcast represents a message that notifies that an
+// entity component has been updated.
+message EntityComponentUpdateBroadcast {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The timestamp of the request that triggered the broadcast.
+  google.protobuf.Timestamp origin_timestamp = 3;
+
+  // The entity component id.
+  EntityComponent entity_component = 4;
+}
+
+// EntityComponentListRequest represents a message for a client to request a
+// list of entity components.
+message EntityComponentListRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The component entity type id.
+  uint32 entity_component_type_id = 3;
+}
+
+// EntityComponentListResponse represents a message returned in response to a
+// list entity component request.
+message EntityComponentListResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity component list.
+  repeated EntityComponent entity_components = 3;
+}
+
+// EntityComponentTypeSubscribeRequest represents a message to subscribe to
+// entity components type broadcasts.
+message EntityComponentTypeSubscribeRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity component type id.
+  uint32 entity_component_type_id = 3;
+}
+
+// EntityComponentTypeSubscribeResponse represents a message returned in
+// response to an entity component type subscription.
+message EntityComponentTypeSubscribeResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+}
+
+// EntityComponentTypeUnsubscribeRequest represents a message to unsubscribe to
+// entity component type subscriptions.
+message EntityComponentTypeUnsubscribeRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity component type id.
+  uint32 entity_component_type_id = 3;
+}
+
+// EntityComponentTypeUnsubscribeResponse represents a message returned in
+// response to an entity component type unsubscribe request.
+message EntityComponentTypeUnsubscribeResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+}
+
+// ReceiptRequest represents a message sent by the SDK to the Hagall
+// containing proof of work receipt, with hash and signature
+// to be passed on to NetworkCreditService
+message ReceiptRequest {
+  // The type of the message
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // proof of work receipt, serialized to json string
+  string receipt = 3;
+
+  // hash of the receipt
+  bytes hash = 4;
+
+  // signature of the receipt, signed by App's private ECDSA key
+  bytes signature = 5;
+}
+
+// ReceiptResponse represents a message returned in response to a receipt request
+message ReceiptResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+}
+

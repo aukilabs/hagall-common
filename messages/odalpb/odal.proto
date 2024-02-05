@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package odal;
+
+// https://developers.google.com/protocol-buffers/docs/reference/java/com/google/protobuf/Timestamp
+import "google/protobuf/timestamp.proto";
+
+option go_package = "pkg/odalpb";
+option csharp_namespace = "Auki.ConjureKit.Odal.Protobuf.Gen";
+option objc_class_prefix = "Odal";
+
+enum MsgType {
+  MSG_TYPE_ERROR_RESPONSE = 0;
+
+  reserved 1 to 199;
+
+  MSG_TYPE_ODAL_STATE = 200;
+  MSG_TYPE_ODAL_ASSET_INSTANCE_ADD_REQUEST = 201;
+  MSG_TYPE_ODAL_ASSET_INSTANCE_ADD_RESPONSE = 202;
+  MSG_TYPE_ODAL_ASSET_INSTANCE_ADD_BROADCAST = 203;
+
+  reserved 300 to max;
+}
+
+// An instance of an asset bound by a participant and tied to an entity created
+// together with the asset instance.
+message AssetInstance {
+  // The asset instance id.
+  uint32 id = 1;
+
+  // The asset id.
+  string asset_id = 2;
+
+  // The id of the participant that owns the asset instance.
+  uint32 participant_id = 3;
+
+  // The entity id.
+  uint32 entity_id = 4;
+}
+
+// State represents a odal state within a session.
+message State {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The assetInstances present in the session.
+  repeated AssetInstance asset_instances = 3;
+}
+
+// AssetInstanceAddRequest represents a message to add an asset instance to the
+// current session.
+message AssetInstanceAddRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The id of the entity to associate with the asset.
+  uint32 entity_id = 3;
+
+  // The asset id.
+  string asset_id = 4;
+}
+
+// AssetInstanceAddResponse is a message returned in response to an add asset
+// instance request.
+message AssetInstanceAddResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The attributed id to the added asset instance.
+  uint32 asset_instance_id = 3;
+}
+
+// AssetInstanceAddBroadcast is a message that notifies that an asset instance
+// has been added.
+message AssetInstanceAddBroadcast {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The timestamp of the request that triggered the broadcast.
+  google.protobuf.Timestamp origin_timestamp = 3;
+
+  // The id of the added asset instance.
+  AssetInstance asset_instance = 4;
+}
