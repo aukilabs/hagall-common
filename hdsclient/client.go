@@ -13,11 +13,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aukilabs/go-tooling/pkg/errors"
+	"github.com/aukilabs/go-tooling/pkg/logs"
 	"github.com/aukilabs/hagall-common/crypt"
-	"github.com/aukilabs/hagall-common/errors"
 	httpcmn "github.com/aukilabs/hagall-common/http"
-	"github.com/aukilabs/hagall-common/logs"
-	"github.com/aukilabs/hagall-common/models"
 	hsmoketest "github.com/aukilabs/hagall-common/smoketest"
 )
 
@@ -152,10 +151,10 @@ func (c *Client) GetRegistrationStatus() RegistrationStatus {
 }
 
 // UserAuth auhenticates a user to a given server.
-func (c *Client) UserAuth(ctx context.Context, in models.UserAuthIn) (models.UserAuthResponse, error) {
+func (c *Client) UserAuth(ctx context.Context, in UserAuthIn) (UserAuthResponse, error) {
 	body, err := c.Encode(in)
 	if err != nil {
-		return models.UserAuthResponse{}, errors.New("encoding body failed").Wrap(err)
+		return UserAuthResponse{}, errors.New("encoding body failed").Wrap(err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx,
@@ -169,12 +168,12 @@ func (c *Client) UserAuth(ctx context.Context, in models.UserAuthIn) (models.Use
 	}
 
 	if err != nil {
-		return models.UserAuthResponse{}, errors.New("creating request failed").Wrap(err)
+		return UserAuthResponse{}, errors.New("creating request failed").Wrap(err)
 	}
 	req.SetBasicAuth(in.AppKey, in.AppSecret)
 	req.Header.Set("Content-Type", "application/json")
 
-	var resp models.UserAuthResponse
+	var resp UserAuthResponse
 	err = c.do(req, &resp)
 	return resp, err
 }
@@ -193,7 +192,7 @@ func (c *Client) VerifyUserAuth(token string) error {
 }
 
 // PostServer registers a server to HDS.
-func (c *Client) PostServer(ctx context.Context, in models.PostServerIn) error {
+func (c *Client) PostServer(ctx context.Context, in PostServerIn) error {
 	if in.State == "" {
 		in.State = httpcmn.MakeJWTSecret()
 	}
@@ -290,27 +289,6 @@ func (c *Client) HandleHealthCheck(w http.ResponseWriter, r *http.Request) {
 	c.SetLastHealthCheck(time.Now())
 	logs.Debug("health check ok")
 }
-
-// GetServersIn is the input to get a list of the closest servers.
-type GetServersIn struct {
-	AppKey       string   `json:"-"`
-	AppSecret    string   `json:"-"`
-	MinVersion   string   `json:"-"`
-	Modules      []string `json:"-"`
-	FeatureFlags []string `json:"-"`
-}
-
-type ServerResponse struct {
-	ID            string   `json:"id"`
-	Endpoint      string   `json:"endpoint"`
-	AccessToken   string   `json:"access_token"`
-	Version       string   `json:"version"`
-	Modules       []string `json:"modules"`
-	FeatureFlags  []string `json:"feature_flags"`
-	WalletAddress string   `json:"wallet_address"`
-}
-
-type GetServersResponse []ServerResponse
 
 // GetServers returns a list of the closest servers.
 func (c *Client) GetServers(ctx context.Context, in GetServersIn) (GetServersResponse, error) {
@@ -600,7 +578,7 @@ func (c *Client) Pair(ctx context.Context, in PairIn) error {
 			WithTag("feature_flags", in.FeatureFlags).
 			Info("registering hagall to hds")
 
-		if err := c.PostServer(ctx, models.PostServerIn{
+		if err := c.PostServer(ctx, PostServerIn{
 			Endpoint:          in.Endpoint,
 			Version:           in.Version,
 			Modules:           in.Modules,

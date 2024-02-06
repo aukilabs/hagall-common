@@ -7,8 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aukilabs/hagall-common/errors"
-	"github.com/aukilabs/hagall-common/logs"
+	"github.com/aukilabs/go-tooling/pkg/errors"
+	"github.com/aukilabs/go-tooling/pkg/logs"
 	"github.com/aukilabs/hagall-common/messages/hagallpb"
 	"golang.org/x/net/websocket"
 	protobuf "google.golang.org/protobuf/proto"

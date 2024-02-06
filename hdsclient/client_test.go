@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/aukilabs/go-tooling/pkg/logs"
 	httpcmn "github.com/aukilabs/hagall-common/http"
-	"github.com/aukilabs/hagall-common/logs"
 	"github.com/stretchr/testify/require"
 )
 

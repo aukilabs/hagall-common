@@ -1,6 +1,6 @@
 package websocket
 
-import "github.com/aukilabs/hagall-common/errors"
+import "github.com/aukilabs/go-tooling/pkg/errors"
 
 const (
 	// An error type for when sending a message fails.

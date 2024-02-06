@@ -1,6 +1,6 @@
 package http
 
-import "github.com/aukilabs/hagall-common/errors"
+import "github.com/aukilabs/go-tooling/pkg/errors"
 
 var (
 	ErrDuplicatedWalletAddress = "duplicated wallet address"

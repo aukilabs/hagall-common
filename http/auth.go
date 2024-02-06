@@ -6,11 +6,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aukilabs/hagall-common/errors"
-	"github.com/aukilabs/hagall-common/models"
+	"github.com/aukilabs/go-tooling/pkg/errors"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 )
+
+// The claims to generate a Hagall User JWT token.
+type HagallUserClaim struct {
+	jwt.RegisteredClaims
+
+	AppKey string `json:"app_key"`
+}
 
 func MakeJWTSecret() string {
 	return base64.RawURLEncoding.EncodeToString([]byte(uuid.NewString()))
@@ -26,7 +32,7 @@ func SignIdentity(endpoint, secret string) (string, error) {
 }
 
 func VerifyHagallUserAccessToken(token, secret string) error {
-	var claims models.HagallUserClaim
+	var claims HagallUserClaim
 
 	_, err := jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
 		// Further validations like expiration are validated by the jwt package.
@@ -54,7 +60,7 @@ func VerifyHagallUserAccessToken(token, secret string) error {
 func GenerateHagallUserAccessToken(appKey, secret string, ttl time.Duration) (string, error) {
 	now := time.Now()
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, models.HagallUserClaim{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, HagallUserClaim{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    "HDS",
 			Subject:   "",
@@ -81,7 +87,7 @@ func GetAppKeyFromHTTPRequest(r *http.Request) string {
 
 // Parses the Hagall user token and returns the app key.
 func GetAppKeyFromHagallUserToken(token string) string {
-	var claims models.HagallUserClaim
+	var claims HagallUserClaim
 	jwt.ParseWithClaims(token, &claims, nil)
 	return claims.AppKey
 }

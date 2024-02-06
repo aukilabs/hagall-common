@@ -3,7 +3,7 @@ package crypt
 import (
 	"crypto/sha256"
 
-	"github.com/aukilabs/hagall-common/errors"
+	"github.com/aukilabs/go-tooling/pkg/errors"
 )
 
 type hdsClient interface {
