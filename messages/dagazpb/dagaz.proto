@@ -5,7 +5,7 @@ package dagaz;
 // https://developers.google.com/protocol-buffers/docs/reference/java/com/google/protobuf/Timestamp
 import "google/protobuf/timestamp.proto";
 
-option go_package = "pkg/dagazpb";
+option go_package = "messages/dagazpb";
 option csharp_namespace = "Auki.ConjureKit.Dagaz.Protobuf.Gen";
 option objc_class_prefix = "Dagaz";
 
@@ -14,15 +14,15 @@ enum MsgType {
 
   reserved 1 to 299;
 
-  MSG_TYPE_DAGAZ_QUAD_SAMPLE                = 300;
+  MSG_TYPE_DAGAZ_QUAD_SAMPLE = 300;
 
-  MSG_TYPE_DAGAZ_GET_GROUND_PLANE_REQUEST   = 301;
-  MSG_TYPE_DAGAZ_GET_GROUND_PLANE_RESPONSE  = 302;
-  MSG_TYPE_DAGAZ_GET_REGION_REQUEST         = 303;
-  MSG_TYPE_DAGAZ_GET_REGION_RESPONSE        = 304;
+  MSG_TYPE_DAGAZ_GET_GROUND_PLANE_REQUEST = 301;
+  MSG_TYPE_DAGAZ_GET_GROUND_PLANE_RESPONSE = 302;
+  MSG_TYPE_DAGAZ_GET_REGION_REQUEST = 303;
+  MSG_TYPE_DAGAZ_GET_REGION_RESPONSE = 304;
 
-  MSG_TYPE_DAGAZ_GET_DEBUG_INFO_REQUEST     = 305;
-  MSG_TYPE_DAGAZ_GET_DEBUG_INFO_RESPONSE    = 306;
+  MSG_TYPE_DAGAZ_GET_DEBUG_INFO_REQUEST = 305;
+  MSG_TYPE_DAGAZ_GET_DEBUG_INFO_RESPONSE = 306;
 
   reserved 400 to max;
 }
@@ -35,70 +35,71 @@ message Point {
 
 message Ray {
   Point from = 1;
-  Point to   = 2;
+  Point to = 2;
 }
 
 message Quad {
-  Point center       = 1;
-  Point extents      = 2;  // from this one can derive the plane information
+  Point center = 1;
+  Point extents = 2; // from this one can derive the plane information
 
   uint32 merge_count = 3;
 }
 
-
 message DagazQuadSample {
-  MsgType type                        = 1;
+  MsgType type = 1;
   google.protobuf.Timestamp timestamp = 2;
-  repeated Quad samples               = 4;
+  repeated Quad samples = 4;
 }
 
 // test message to read server state:
 message DagazGetGroundPlaneRequest {
-  MsgType type                        = 1;
+  MsgType type = 1;
   google.protobuf.Timestamp timestamp = 2;
-  uint32 request_id                   = 1337;
-  Ray ray                             = 3;
+  uint32 request_id = 1337;
+  Ray ray = 3;
 }
 
 message DagazGetGroundPlaneResponse {
-  MsgType type                        = 1;
+  MsgType type = 1;
   google.protobuf.Timestamp timestamp = 2;
-  uint32 request_id                   = 1337;
-  Quad ground                         = 3;  
+  uint32 request_id = 1337;
+  Quad ground = 3;
 }
 
 message DagazGetRegionRequest {
-  MsgType type                        = 1;
+  MsgType type = 1;
   google.protobuf.Timestamp timestamp = 2;
-  uint32 request_id                   = 1337;
-  Point min                           = 3;
-  Point max                           = 4;
+  uint32 request_id = 1337;
+  Point min = 3;
+  Point max = 4;
 }
 
 message DagazGetRegionResponse {
-  MsgType type                        = 1;
+  MsgType type = 1;
   google.protobuf.Timestamp timestamp = 2;
-  uint32 request_id                   = 1337;
-  repeated Quad quads                 = 3;
+  uint32 request_id = 1337;
+  repeated Quad quads = 3;
 }
 
 // Debug stuff:
 message DagazGetDebugInfoRequest {
-  MsgType type                        = 1;
-  google.protobuf.Timestamp timestamp = 2;  // We need to be able to not send this...
-  uint32 request_id                   = 1337;
+  MsgType type = 1;
+  google.protobuf.Timestamp timestamp =
+      2; // We need to be able to not send this...
+  uint32 request_id = 1337;
 }
 
 message DagazGetDebugInfoResponse {
-  MsgType type                        = 1;
-  google.protobuf.Timestamp timestamp = 2;  // We need to be able to not send this...
-  uint32 request_id                   = 1337;
-  uint32 grid_resolution              = 3;
-  uint32 grid_row_count               = 4;
-  uint32 grid_col_count               = 5;
-  uint32 grid_plane_count             = 6;
-  uint32 grid_merge_count             = 7;
-  Point grid_min_point                = 8;
-  Point grid_max_point                = 9;
-  repeated uint32 occupancy           = 10;
+  MsgType type = 1;
+  google.protobuf.Timestamp timestamp =
+      2; // We need to be able to not send this...
+  uint32 request_id = 1337;
+  uint32 grid_resolution = 3;
+  uint32 grid_row_count = 4;
+  uint32 grid_col_count = 5;
+  uint32 grid_plane_count = 6;
+  uint32 grid_merge_count = 7;
+  Point grid_min_point = 8;
+  Point grid_max_point = 9;
+  repeated uint32 occupancy = 10;
 }

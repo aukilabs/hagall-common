@@ -5,7 +5,7 @@ package hagall;
 // https://developers.google.com/protocol-buffers/docs/reference/java/com/google/protobuf/Timestamp
 import "google/protobuf/timestamp.proto";
 
-option go_package = "pkg/messages/hagallpb";
+option go_package = "messages/messages/hagallpb";
 option csharp_namespace = "Auki.ConjureKit.Hagall.Protobuf.Gen";
 option objc_class_prefix = "Hagall";
 
@@ -843,7 +843,8 @@ message ReceiptRequest {
   bytes signature = 5;
 }
 
-// ReceiptResponse represents a message returned in response to a receipt request
+// ReceiptResponse represents a message returned in response to a receipt
+// request
 message ReceiptResponse {
   // The type of the message.
   MsgType type = 1;
@@ -854,4 +855,3 @@ message ReceiptResponse {
   // The id that identifies a request.
   uint32 request_id = 1337;
 }
-

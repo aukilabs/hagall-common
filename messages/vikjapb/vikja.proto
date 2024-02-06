@@ -5,7 +5,7 @@ package vikja;
 // https://developers.google.com/protocol-buffers/docs/reference/java/com/google/protobuf/Timestamp
 import "google/protobuf/timestamp.proto";
 
-option go_package = "pkg/vikjapb";
+option go_package = "messages/vikjapb";
 option csharp_namespace = "Auki.ConjureKit.Vikja.Protobuf.Gen";
 option objc_class_prefix = "Vikja";
 

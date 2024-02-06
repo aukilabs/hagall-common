@@ -5,7 +5,7 @@ package odal;
 // https://developers.google.com/protocol-buffers/docs/reference/java/com/google/protobuf/Timestamp
 import "google/protobuf/timestamp.proto";
 
-option go_package = "pkg/odalpb";
+option go_package = "messages/odalpb";
 option csharp_namespace = "Auki.ConjureKit.Odal.Protobuf.Gen";
 option objc_class_prefix = "Odal";
 
