@@ -12,7 +12,7 @@ var (
 	}
 )
 
-// GetErrorMessage return custom error message from internal error
+// GetErrorMessage returns custom error message from internal error.
 func GetErrorMessage(err error) string {
 	if err == nil {
 		return ""

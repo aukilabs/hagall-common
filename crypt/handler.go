@@ -16,8 +16,8 @@ type secretProvider interface {
 	GetKey() ([]byte, error)
 }
 
-// HandleWithEncryption returns a http handler function that encrypt content returned by handler
-// using key provided by secretProvider
+// HandleWithEncryption returns a http handler function that encrypts content
+// returned by handler using key provided by secretProvider.
 func HandleWithEncryption(provider secretProvider, handler http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		responseWriter := &responseEncrypter{
@@ -41,8 +41,8 @@ func HandleWithEncryption(provider secretProvider, handler http.Handler) http.Ha
 	}
 }
 
-// responseEncrypter implements http.ResponseWriter interface
-// to intercept plaintext response from upstream http.Handler, output encrypted response
+// responseEncrypter implements http.ResponseWriter interface to intercept
+// plaintext response from upstream http.Handler. Outputs encrypted response.
 type responseEncrypter struct {
 	secret     secretProvider
 	buf        bytes.Buffer
@@ -50,22 +50,22 @@ type responseEncrypter struct {
 	statusCode int
 }
 
-// Header return underlying response writer header
+// Returns underlying response writer header.
 func (w responseEncrypter) Header() http.Header {
 	return w.writer.Header()
 }
 
-// WriteHeader store upstream statusCode
+// WriteHeader stores upstream statusCode.
 func (w *responseEncrypter) WriteHeader(statusCode int) {
 	w.statusCode = statusCode
 }
 
-// Write store upstream content in buffer
+// Write stores upstream content in buffer.
 func (w *responseEncrypter) Write(buf []byte) (int, error) {
 	return w.buf.Write(buf)
 }
 
-// encryptResponse encrypt buffer and output to underlying response writer
+// encryptResponse encrypts buffer and outputs to underlying response writer.
 func (w responseEncrypter) encryptResponse() {
 	key, err := w.secret.GetKey()
 	if err != nil {
@@ -96,7 +96,7 @@ func (w responseEncrypter) encryptResponse() {
 	}
 }
 
-// removeCompession remove "gzip" from http Accept-Encoding request header
+// removeCompression removes "gzip" from http Accept-Encoding request header.
 func removeCompression(header http.Header) {
 	acceptEncoding := header.Values(acceptEncodingHeader)
 

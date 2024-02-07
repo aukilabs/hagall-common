@@ -18,23 +18,23 @@ type HagallUserClaim struct {
 	AppKey string `json:"app_key"`
 }
 
-// MakeJWTSecret creates a random secret string
+// MakeJWTSecret creates a random secret string.
 func MakeJWTSecret() string {
 	return base64.RawURLEncoding.EncodeToString([]byte(uuid.NewString()))
 }
 
-// MakeAuthorizationHeader creates a Bearer authorization header with toke
+// MakeAuthorizationHeader creates a Bearer Authorization header using passed token.
 func MakeAuthorizationHeader(token string) string {
 	return "Bearer " + token
 }
 
-// SignIdentity signs endpoint with secret
+// SignIdentity signs endpoint with secret.
 func SignIdentity(endpoint, secret string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"endpoint": endpoint})
 	return token.SignedString([]byte(secret))
 }
 
-// VerifyHagallUserAccessToken verifies signed token with the secret
+// VerifyHagallUserAccessToken verifies signed token with the secret.
 func VerifyHagallUserAccessToken(token, secret string) error {
 	var claims HagallUserClaim
 
@@ -59,7 +59,7 @@ func VerifyHagallUserAccessToken(token, secret string) error {
 	return err
 }
 
-// GenerateHagallUserAccessToken generate a Hagall user access token with the given secret.
+// GenerateHagallUserAccessToken generates a Hagall user access token using the given secret.
 func GenerateHagallUserAccessToken(appKey, secret string, ttl time.Duration) (string, error) {
 	now := time.Now()
 
@@ -77,7 +77,7 @@ func GenerateHagallUserAccessToken(appKey, secret string, ttl time.Duration) (st
 	return token.SignedString([]byte(secret))
 }
 
-// GetAppKeyFromHTTPRequest extracts app_key from the http request authorization header
+// GetAppKeyFromHTTPRequest extracts app_key from the HTTP request Authorization header.
 func GetAppKeyFromHTTPRequest(r *http.Request) string {
 	switch auth := r.Header.Get("Authorization"); {
 	case strings.HasPrefix(auth, "Basic"):
@@ -96,7 +96,7 @@ func GetAppKeyFromHagallUserToken(token string) string {
 	return claims.AppKey
 }
 
-// Returns the Hagall user token from a http request.
+// Returns the Hagall user token from a HTTP request.
 func GetUserTokenFromHTTPRequest(r *http.Request) string {
 	var token string
 	for _, finder := range []tokenFinder{

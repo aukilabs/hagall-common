@@ -35,10 +35,10 @@ type Client struct {
 	// (optional)
 	Transport http.RoundTripper
 
-	// The function to encode requests body.
+	// The function to encode request bodies.
 	Encode Encoder
 
-	// The function to decode responses body.
+	// The function to decode response bodies.
 	Decode Decoder
 
 	// Setting RemoteAddr to insert a http header x-real-ip=RemoteAddr to request,
@@ -56,7 +56,7 @@ type Client struct {
 	privateKey *ecdsa.PrivateKey
 }
 
-// NewClient build new client with optional parameters from opts
+// NewClient creates new client with optional parameters.
 func NewClient(opts ...ClientOpts) *Client {
 	c := &Client{}
 
@@ -92,7 +92,7 @@ func (c *Client) ServerID() string {
 	return c.serverID
 }
 
-// SetServerData set internal serverID & server secret state
+// SetServerData sets internal serverID & server secret state.
 func (c *Client) SetServerData(serverID, secret string) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
@@ -122,7 +122,7 @@ func (c *Client) setRegistrationState(v string) {
 	c.registrationState = v
 }
 
-// GetRegistrationState get current registration state
+// GetRegistrationState returns current registration state.
 func (c *Client) GetRegistrationState() string {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -136,7 +136,7 @@ func (c *Client) setRegistrationStatus(v RegistrationStatus) {
 	c.registrationStatus = v
 }
 
-// GetRegistrationStatus get current registration status
+// GetRegistrationStatus returns current registration status.
 func (c *Client) GetRegistrationStatus() RegistrationStatus {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -171,7 +171,7 @@ func (c *Client) UserAuth(ctx context.Context, in UserAuthIn) (UserAuthResponse,
 	return resp, err
 }
 
-// VerifyAuth verify a user identity.
+// VerifyUserAuth verifies a user's identity.
 func (c *Client) VerifyUserAuth(token string) error {
 	secret := c.Secret()
 	if secret == "" {
@@ -314,7 +314,7 @@ func (c *Client) GetServerByID(ctx context.Context, in GetServerByIDIn) (ServerR
 	return s, err
 }
 
-// GetServerByEndpoint return the server with the given endpoint from HDS.
+// GetServerByEndpoint returns the server with the given endpoint from HDS.
 func (c *Client) GetServerByEndpoint(ctx context.Context, in GetServerByEndpointIn) (ServerResponse, error) {
 	var s ServerResponse
 	err := c.GetWithAuth(ctx, "/servers?endpoint="+in.Endpoint, in.AppKey, in.AppSecret, nil, &s)
@@ -331,7 +331,7 @@ func (c *Client) PostSession(ctx context.Context, in PostSessionIn) error {
 	return c.Post(ctx, "/sessions", in)
 }
 
-// Get sends a GET request to the given path and stores its result in the given
+// Get sends a GET request to the given path and stores result in the given
 // output.
 func (c *Client) Get(ctx context.Context, path string, out interface{}) error {
 	req, err := http.NewRequestWithContext(ctx,
@@ -346,9 +346,11 @@ func (c *Client) Get(ctx context.Context, path string, out interface{}) error {
 	return c.do(req, out)
 }
 
-// GetWithAuth sends a GET request to the given path and stores its result in
-// the given output. It uses app key and secret for basic authentication.
-func (c *Client) GetWithAuth(ctx context.Context, path, appKey, appSecret string, queries map[string]string, out interface{}) error {
+// GetWithAuth sends a GET request to the given path and stores result in
+// the given output. It uses app key and app secret for basic authentication.
+func (c *Client) GetWithAuth(
+	ctx context.Context, path, appKey, appSecret string, queries map[string]string, out interface{},
+) error {
 	req, err := http.NewRequestWithContext(ctx,
 		http.MethodGet,
 		c.HDSEndpoint+path,
@@ -417,7 +419,7 @@ func (c *Client) Delete(ctx context.Context, path string) error {
 	return c.do(req, nil)
 }
 
-// SendSmokeTestResult sends smoke test results to HDS /smoke-test-results endpoint
+// SendSmokeTestResult sends smoke test results to HDS /smoke-test-results endpoint.
 func (c *Client) SendSmokeTestResult(ctx context.Context, results hsmoketest.SmokeTestResults) error {
 	return c.Post(ctx, "/smoke-test-results", results)
 }
@@ -464,7 +466,7 @@ func (c *Client) do(req *http.Request, out interface{}) error {
 	return nil
 }
 
-// Pair pairs the client with HDS, registering an endpoint when it is deemed necessary.
+// Pair pairs the client with HDS, registering an endpoint when necessary.
 func (c *Client) Pair(ctx context.Context, in PairIn) error {
 	// run register right after function starts
 	registrationTimer := time.NewTimer(1 * time.Millisecond)
@@ -574,7 +576,7 @@ func (c *Client) Pair(ctx context.Context, in PairIn) error {
 	}
 }
 
-// Unpair de-register hagall from HDS
+// Unpair deregisters Hagall from HDS.
 func (c *Client) Unpair() error {
 	logs.WithTag("status", c.GetRegistrationStatus()).
 		Debug("unpairing server")
@@ -606,7 +608,7 @@ func (c *Client) Unpair() error {
 	return nil
 }
 
-// isRetryableError returns false for error with status code in between 400 and 499
+// isRetryableError returns false for error with status code in between 400 and 499.
 func isRetryableError(err error) bool {
 	rErr, ok := err.(errors.Error)
 	if !ok {

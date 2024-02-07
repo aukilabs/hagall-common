@@ -17,7 +17,7 @@ var (
 )
 
 // ScenarioCheck represents a function that is used to check a received message
-// whithin a scenario.
+// within a scenario.
 //
 // Returning ErrScenarioMsgSkip skips the current message and the check will be
 // reused on the next received message.
@@ -69,7 +69,7 @@ func NewScenario(ws *websocket.Conn) *Scenario {
 	}
 }
 
-// Send create a step where the given message is sent.
+// Send creates a step where the given message is sent.
 func (s *Scenario) Send(newMsg func() hwebsocket.ProtoMsg) *Scenario {
 	s.steps = append(s.steps, sendStep{newMsg: newMsg})
 	return s

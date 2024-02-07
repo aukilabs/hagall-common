@@ -12,13 +12,13 @@ type hdsClient interface {
 
 type cacher func(func() ([]byte, error)) ([]byte, error)
 
-// A secret provider using hagall token from HDS client
+// A secret provider using Hagall token from HDS client.
 type HagallSecretProvider struct {
 	client hdsClient
 	cacher
 }
 
-// NewHagallSecretProvider return new a HagallSecretProvider
+// Returns a new HagallSecretProvider.
 func NewHagallSecretProvider(client hdsClient) HagallSecretProvider {
 	return HagallSecretProvider{
 		client: client,
@@ -26,12 +26,12 @@ func NewHagallSecretProvider(client hdsClient) HagallSecretProvider {
 	}
 }
 
-// GetKey generate a 256 bits key using sha256 hash of hagall secret with cache
+// GetKey generates a 256-bit key using sha256 hash of Hagall secret with cache.
 func (h HagallSecretProvider) GetKey() ([]byte, error) {
 	return h.cacher(h.getKey)
 }
 
-// getKey generate a 256 bits key using sha256 hash of hagall secret
+// getKey generates a 256-bit key using sha256 hash of Hagall secret.
 func (h HagallSecretProvider) getKey() ([]byte, error) {
 	return sha256hash([]byte(h.client.Secret()))
 }
@@ -45,8 +45,8 @@ func sha256hash(buf []byte) ([]byte, error) {
 	return hash.Sum(nil), nil
 }
 
-// keyCacher returns cacher function that caches key generated from fn
-// cache is invalidated when client secret changed
+// keyCacher returns cacher function that caches key generated from fn.
+// Cache is invalidated when client secret changes.
 func keyCacher(client hdsClient) cacher {
 	var cachedSecret string
 	var cachedKey []byte
