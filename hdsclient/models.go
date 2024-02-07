@@ -28,7 +28,7 @@ type PostServerIn struct {
 	// The Hagall server endpoint. Optional.
 	Endpoint string `json:"endpoint"`
 
-	// The endpoint url signature signed by the wallet
+	// The endpoint URL signature signed by the wallet.
 	EndpointSignature string `json:"endpoint_signature"`
 
 	// The Hagall server version.
@@ -42,10 +42,10 @@ type PostServerIn struct {
 	// The modules that the server supports.
 	Modules []string `json:"modules"`
 
-	// Feature flags supported by server
+	// Feature flags supported by server.
 	FeatureFlags []string `json:"feature_flags"`
 
-	// The timestamp when endpoint signature was signed
+	// The timestamp when endpoint signature was signed.
 	Timestamp string `json:"timestamp"`
 }
 
@@ -70,14 +70,14 @@ const (
 	RegistrationStatusFailed              RegistrationStatus = 4
 )
 
-// GetServerByIDIn is the input to retrieve a server by its id from HDS.
+// GetServerByIDIn is the input to retrieve a server by it's id from HDS.
 type GetServerByIDIn struct {
 	ServerID  string `json:"-"`
 	AppKey    string `json:"-"`
 	AppSecret string `json:"-"`
 }
 
-// GetServerByEndpointIn is the input to retrieve a server by its endpoint from HDS.
+// GetServerByEndpointIn is the input to retrieve a server by it's endpoint from HDS.
 type GetServerByEndpointIn struct {
 	Endpoint  string `json:"-"`
 	AppKey    string `json:"-"`
@@ -115,6 +115,6 @@ type PairIn struct {
 	// registration.
 	HealthCheckTTL time.Duration
 
-	// The number of retries before return with error
+	// The number of retries before returning with error.
 	RegistrationRetries int
 }

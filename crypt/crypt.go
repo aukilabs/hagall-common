@@ -15,7 +15,7 @@ const (
 )
 
 // Encrypt encrypts buf using key with AES-GCM AEAD mode,
-// nonce is prepend to encrypted text and result is hex encoded
+// nonce is prepended to encrypted text and result is hex encoded.
 func Encrypt(buf []byte, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
@@ -44,7 +44,7 @@ func Encrypt(buf []byte, key []byte) ([]byte, error) {
 	return encrypted, nil
 }
 
-// Decrypt decrypts buf using key with AES-GCM AEAD mode
+// Decrypt decrypts buf using key with AES-GCM AEAD mode.
 func Decrypt(buf []byte, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {

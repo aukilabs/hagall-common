@@ -20,7 +20,6 @@ const (
 	schedulerQueueSize = 256
 )
 
-// ResponseSender
 type ResponseSender interface {
 	Send(ProtoMsg)
 	SendMsg(Msg)
@@ -39,7 +38,7 @@ func (m Msg) DataTo(v ProtoMsg) error {
 	return protobuf.Unmarshal(m.body, v)
 }
 
-// MsgFromProto build Msg from ProtoMsg
+// MsgFromProto builds Msg from ProtoMsg.
 func MsgFromProto(v ProtoMsg) (Msg, error) {
 	protoMsgVal := reflect.Indirect(reflect.ValueOf(v))
 	if protoMsgVal.Kind() != reflect.Struct {
@@ -70,7 +69,7 @@ func (m Msg) TypeString() string {
 	return protoTypes.Type(m.Type)
 }
 
-// ProtoMsg is the interface that describe a protobuf message.
+// ProtoMsg is the interface that describes a protobuf message.
 type ProtoMsg interface {
 	protoreflect.ProtoMessage
 

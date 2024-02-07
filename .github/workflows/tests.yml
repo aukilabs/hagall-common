@@ -1,26 +1,15 @@
 name: Tests
-on:
-  push:
-  create:
+
+on: [push]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  codecheck:
-    uses: aukilabs/github-actions/.github/workflows/golang-workflow.yml@v2
-    name: Run code check
-    with:
-      golang_version: '1.21'
-      enable_vet: true
-    secrets:
-      github_app_id: ${{ secrets.GLOBAL_GITHUB_APP_ID }}
-      github_app_private_key: ${{ secrets.GLOBAL_GITHUB_APP_PRIVATE_KEY }}
   tests:
-    uses: aukilabs/github-actions/.github/workflows/golang-workflow.yml@v2
-    name: Run test suite
+    uses: aukilabs/go-tooling/.github/workflows/tests.yml@feature/reusable-workflows
+    name: Tests
     with:
-      golang_version: '1.21'
-      enable_test: true
-    secrets:
-      github_app_id: ${{ secrets.GLOBAL_GITHUB_APP_ID }}
-      github_app_private_key: ${{ secrets.GLOBAL_GITHUB_APP_PRIVATE_KEY }}
-      aws_access_key: ${{ secrets.GLOBAL_COMMON_AWS_ACCESS_KEY }}
-      aws_secret_access_key: ${{ secrets.GLOBAL_COMMON_AWS_SECRET_ACCESS_KEY }}
-      aws_region: ${{ secrets.GLOBAL_COMMON_AWS_REGION }}
+      enable_coverage: true
+

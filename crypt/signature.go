@@ -10,7 +10,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-// Sign a message with a private key, return signature in 0x string format
+// Sign signs a message with an ECDSA private key.
+// Returns signature in 0x string format.
 func Sign(privateKey *ecdsa.PrivateKey, message string) (string, error) {
 	signature, err := crypto.Sign(crypto.Keccak256Hash([]byte(message)).Bytes(), privateKey)
 	if err != nil {
@@ -21,7 +22,8 @@ func Sign(privateKey *ecdsa.PrivateKey, message string) (string, error) {
 	return hexutil.Encode(signature), nil
 }
 
-// Sign a message with a private key, return signature in 0x string format
+// SignWithTimestamp signs a message with an ECDSA private key.
+// Returns signature in 0x string format.
 func SignWithTimestamp(privateKey *ecdsa.PrivateKey, message string) (string, string, error) {
 	timestamp := time.Now().Format(time.RFC3339)
 	signature, err := Sign(privateKey, message+timestamp)
@@ -32,7 +34,8 @@ func SignWithTimestamp(privateKey *ecdsa.PrivateKey, message string) (string, st
 	return signature, timestamp, nil
 }
 
-// ValidateSignedMessage validates a signed message and returning wallet address from signature
+// ValidateSignedMessage validates a signed message and returns wallet address
+// from signature.
 func ValidateSignedMessage(message string, signature string) (common.Address, error) {
 	if message == "" {
 		return common.Address{}, errors.New("signed message is empty")
