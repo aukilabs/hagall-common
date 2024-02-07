@@ -12,3 +12,4 @@ jobs:
     name: Tests
     with:
       enable_coverage: true
+
