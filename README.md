@@ -9,7 +9,7 @@ This repository contains packages that are commonly used by Hagall & other backe
 | [crypt](crypt)         | Package that provides cryptography related functionalities.      |
 | [hdsclient](hdsclient) | Package with a client interface to the Hagall Discovery Service. |
 | [http](http)           | Package with common HTTP functionalities.                        |
-| [messages](messages)   | Package with the definition of Hagall modules protobuf messages  |
+| [messages](messages)   | Package with the definition of Hagall modules protobuf messages. |
 | [ncsclient](ncsclient) | Package with a client interface to the Network Credit Service.   |
 | [scenario](scenario)   | Package to support Hagall protocol simulation using websocket.   |
 | [smoketest](smoketest) | Package that provides smoketest functionality.                   |
@@ -18,7 +18,7 @@ This repository contains packages that are commonly used by Hagall & other backe
 
 ## Generating Protobuf
 
-To regenerate protobuf messages after updated .proto files.
+To regenerate protobuf messages after updating .proto files:
 
 ```shell
 make proto
