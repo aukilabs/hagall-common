@@ -2,7 +2,6 @@ package http
 
 import (
 	"encoding/json"
-	"net"
 	"net/http"
 	"strings"
 
@@ -85,34 +84,4 @@ func HTTPError(w http.ResponseWriter, code int, err error) {
 func NormalizeEndpoint(v string) string {
 	v = strings.TrimSpace(v)
 	return strings.TrimRight(v, "/")
-}
-
-// Normalize IP address in different format
-func NormalizeIP(in string) (net.IP, error) {
-	ipStr := strings.TrimSpace(in)
-
-	// get first address if ipStr contains comma
-	if strings.Index(in, ",") > 0 {
-		ipStr = strings.TrimSpace(strings.Split(in, ",")[0])
-	}
-
-	// split ipStr if it contains IP & port information
-	ip, _, err := net.SplitHostPort(ipStr)
-	if err == nil {
-		ipStr = ip
-	}
-
-	netIP := net.ParseIP(ipStr)
-	if netIP == nil {
-		return net.IP{}, errors.New("error parsing ip")
-	}
-
-	// ParseIP stores ipv4 in 4in6 format (64 bits) , pgconn serialize it into ipv6 format i.e '1.0.0.1' -> '::ffff:1.0.0.1'
-	// code below convert netIP to into pure ipv4 if it matches ipv4 length (32 bits)
-	ip4 := netIP.To4()
-	if len(ip4) == net.IPv4len {
-		netIP = ip4
-	}
-
-	return netIP, nil
 }
