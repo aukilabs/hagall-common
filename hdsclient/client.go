@@ -23,8 +23,7 @@ import (
 type Encoder func(interface{}) ([]byte, error)
 type Decoder func([]byte, interface{}) error
 
-// Client represents an HTTP client to communicate with Hagall Discovery
-// Service.
+// Client represents an HTTP client to communicate with Hagall Discovery Service.
 type Client struct {
 	// The Hagall endpoint.
 	HagallEndpoint string
@@ -56,16 +55,6 @@ type Client struct {
 
 	privateKey *ecdsa.PrivateKey
 }
-
-type RegistrationStatus int
-
-const (
-	RegistrationStatusInit                RegistrationStatus = 0
-	RegistrationStatusRegistering         RegistrationStatus = 1
-	RegistrationStatusPendingVerification RegistrationStatus = 2
-	RegistrationStatusRegistered          RegistrationStatus = 3
-	RegistrationStatusFailed              RegistrationStatus = 4
-)
 
 // NewClient build new client with optional parameters from opts
 func NewClient(opts ...ClientOpts) *Client {
@@ -103,6 +92,7 @@ func (c *Client) ServerID() string {
 	return c.serverID
 }
 
+// SetServerData set internal serverID & server secret state
 func (c *Client) SetServerData(serverID, secret string) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
@@ -118,6 +108,7 @@ func (c *Client) LastHealthCheck() time.Time {
 	return c.lastHealthCheck
 }
 
+// SetLastHealthCheck set the time when HDS performed the latest healthcheck.
 func (c *Client) SetLastHealthCheck(t time.Time) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
@@ -131,6 +122,7 @@ func (c *Client) setRegistrationState(v string) {
 	c.registrationState = v
 }
 
+// GetRegistrationState get current registration state
 func (c *Client) GetRegistrationState() string {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -144,6 +136,7 @@ func (c *Client) setRegistrationStatus(v RegistrationStatus) {
 	c.registrationStatus = v
 }
 
+// GetRegistrationStatus get current registration status
 func (c *Client) GetRegistrationStatus() RegistrationStatus {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -314,25 +307,11 @@ func (c *Client) GetServers(ctx context.Context, in GetServersIn) (GetServersRes
 	return servers, err
 }
 
-// GetServerByIDIn is the input to retrieve a server by its id from HDS.
-type GetServerByIDIn struct {
-	ServerID  string `json:"-"`
-	AppKey    string `json:"-"`
-	AppSecret string `json:"-"`
-}
-
 // GetServerByID returns the server with the given id from HDS.
 func (c *Client) GetServerByID(ctx context.Context, in GetServerByIDIn) (ServerResponse, error) {
 	var s ServerResponse
 	err := c.GetWithAuth(ctx, "/servers/"+in.ServerID, in.AppKey, in.AppSecret, nil, &s)
 	return s, err
-}
-
-// GetServerByEndpointIn is the input to retrieve a server by its endpoint from HDS.
-type GetServerByEndpointIn struct {
-	Endpoint  string `json:"-"`
-	AppKey    string `json:"-"`
-	AppSecret string `json:"-"`
 }
 
 // GetServerByEndpoint return the server with the given endpoint from HDS.
@@ -347,19 +326,9 @@ func (c *Client) DeleteServer(ctx context.Context) error {
 	return c.Delete(ctx, "/servers")
 }
 
-// PostSessionIn is the input to register a session to HDS.
-type PostSessionIn struct {
-	ID string `json:"id"`
-}
-
 // PostSession registers a session to HDS.
 func (c *Client) PostSession(ctx context.Context, in PostSessionIn) error {
 	return c.Post(ctx, "/sessions", in)
-}
-
-// GetSessionIn is the input to get a session from HDS.
-type GetSessionIn struct {
-	ID string
 }
 
 // Get sends a GET request to the given path and stores its result in the given
@@ -448,6 +417,7 @@ func (c *Client) Delete(ctx context.Context, path string) error {
 	return c.do(req, nil)
 }
 
+// SendSmokeTestResult sends smoke test results to HDS /smoke-test-results endpoint
 func (c *Client) SendSmokeTestResult(ctx context.Context, results hsmoketest.SmokeTestResults) error {
 	return c.Post(ctx, "/smoke-test-results", results)
 }
@@ -494,33 +464,7 @@ func (c *Client) do(req *http.Request, out interface{}) error {
 	return nil
 }
 
-// PairIn is the input to pair the client with HDS.
-type PairIn struct {
-	// The Hagall server endpoint. Optional.
-	Endpoint string
-
-	// The Hagall server version.
-	Version string
-
-	// The modules that the server supports.
-	Modules []string
-
-	// The feature flags that the server supports.
-	FeatureFlags []string
-
-	// The interval between each registration try.
-	RegistrationInterval time.Duration
-
-	// The elapsed time required since the last health check to trigger a new
-	// registration.
-	HealthCheckTTL time.Duration
-
-	// The number of retries before return with error
-	RegistrationRetries int
-}
-
-// Pair pairs the client with HDS, registering an endpoint when it is deemed
-// necessary.
+// Pair pairs the client with HDS, registering an endpoint when it is deemed necessary.
 func (c *Client) Pair(ctx context.Context, in PairIn) error {
 	// run register right after function starts
 	registrationTimer := time.NewTimer(1 * time.Millisecond)
@@ -630,6 +574,7 @@ func (c *Client) Pair(ctx context.Context, in PairIn) error {
 	}
 }
 
+// Unpair de-register hagall from HDS
 func (c *Client) Unpair() error {
 	logs.WithTag("status", c.GetRegistrationStatus()).
 		Debug("unpairing server")

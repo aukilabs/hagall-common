@@ -14,6 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+// RunSmokeTestOptions are options to runs smoke test
 type RunSmokeTestOptions struct {
 	FromEndpoint       string
 	ToEndpoint         string
@@ -23,6 +24,7 @@ type RunSmokeTestOptions struct {
 	UserAgent          string
 }
 
+// RunsmokeTest runs smoke test and returns smoke test results to caller
 func RunSmokeTest(ctx context.Context, opts RunSmokeTestOptions) (SmokeTestResults, error) {
 	ctx, cancel := context.WithTimeout(ctx, opts.Timeout)
 	defer cancel()

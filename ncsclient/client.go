@@ -5,31 +5,29 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"github.com/aukilabs/go-tooling/pkg/errors"
+	httpcmn "github.com/aukilabs/hagall-common/http"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
+// NCSClient is the network credit service client
 type NCSClient struct {
 	Endpoint  string
 	Transport http.RoundTripper
 }
 
+// NewNCSClient returns a new network credit service client with the NCS endpoint and
+// a http roundtripper
 func NewNCSClient(endpoint string, transport http.RoundTripper) NCSClient {
 	if transport == nil {
 		transport = http.DefaultTransport
 	}
 
 	return NCSClient{
-		Endpoint:  NormalizeEndpoint(endpoint),
+		Endpoint:  httpcmn.NormalizeEndpoint(endpoint),
 		Transport: transport,
 	}
-}
-
-func NormalizeEndpoint(v string) string {
-	v = strings.TrimSpace(v)
-	return strings.TrimRight(v, "/")
 }
 
 type ReceiptPayload struct {
@@ -38,6 +36,7 @@ type ReceiptPayload struct {
 	Signature []byte `json:"signature"`
 }
 
+// NewReceiptPayload returns a signed receipt payload with privateKeyString
 func NewReceiptPayload(receipt Receipt, privateKeyString string) (ReceiptPayload, error) {
 	privateKey, err := crypto.HexToECDSA(privateKeyString)
 	if err != nil {
@@ -70,6 +69,7 @@ func NewReceiptPayloadFromParams(receipt string, hash []byte, signature []byte) 
 	}
 }
 
+// PostReceipt sends receipts to network credit service /receipt endpoint
 func (c *NCSClient) PostReceipt(ctx context.Context, payload ReceiptPayload) error {
 	path := "/receipt"
 
