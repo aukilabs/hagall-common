@@ -8,7 +8,7 @@ concurrency:
 
 jobs:
   tests:
-    uses: aukilabs/go-tooling/.github/workflows/tests.yml@feature/reusable-workflows
+    uses: aukilabs/go-tooling/.github/workflows/tests.yml@main
     name: Tests
     with:
       enable_coverage: true
