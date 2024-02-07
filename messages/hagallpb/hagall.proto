@@ -5,7 +5,7 @@ package hagall;
 // https://developers.google.com/protocol-buffers/docs/reference/java/com/google/protobuf/Timestamp
 import "google/protobuf/timestamp.proto";
 
-option go_package = "messages/messages/hagallpb";
+option go_package = "messages/hagallpb";
 option csharp_namespace = "Auki.ConjureKit.Hagall.Protobuf.Gen";
 option objc_class_prefix = "Hagall";
 
