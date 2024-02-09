@@ -1,4 +1,4 @@
-# Hagall Common Libraries
+# Hagall common libraries
 
 This repository contains packages that are commonly used by Hagall & other backend services in Aukilabs.
 
