@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package vikja;
+
+// https://developers.google.com/protocol-buffers/docs/reference/java/com/google/protobuf/Timestamp
+import "google/protobuf/timestamp.proto";
+
+option go_package = "messages/vikjapb";
+option csharp_namespace = "Auki.ConjureKit.Vikja.Protobuf.Gen";
+option objc_class_prefix = "Vikja";
+
+enum MsgType {
+  MSG_TYPE_ERROR_RESPONSE = 0;
+
+  reserved 1 to 99;
+
+  MSG_TYPE_VIKJA_STATE = 100;
+  MSG_TYPE_VIKJA_ENTITY_ACTION_REQUEST = 101;
+  MSG_TYPE_VIKJA_ENTITY_ACTION_RESPONSE = 102;
+  MSG_TYPE_VIKJA_ENTITY_ACTION_BROADCAST = 103;
+
+  reserved 200 to max;
+}
+
+// An arbitrary (user-defined) action related to an entity that is broadcasted
+// to all participants in a session. An action name is prefixed with the
+// application name to avoid conflict between multiple apps in the same session
+// using the same action.
+message EntityAction {
+  // The entity id the action acts upon.
+  uint32 entity_id = 1;
+
+  // The name (or key) of the action.
+  string name = 2;
+
+  // The time the action was sent by client.
+  google.protobuf.Timestamp timestamp = 3;
+
+  // The data associated with the action.
+  bytes data = 4;
+}
+
+// State represents a Vikja state within a session.
+message State {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The latest entity actions.
+  repeated EntityAction entity_actions = 3;
+}
+
+// EntityActionRequest represents a message to set an entity action to the
+// current session.
+message EntityActionRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The entity action to set.
+  EntityAction entity_action = 3;
+}
+
+// EntityActionResponse represents a message returned in response to an entity
+// action request.
+message EntityActionResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+}
+
+// EntityActionResponse represents a message that notifies that an entity action
+// has been set.
+message EntityActionBroadcast {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The timestamp of the request that triggered the broadcast.
+  google.protobuf.Timestamp origin_timestamp = 3;
+
+  // The entity action.
+  EntityAction entity_action = 4;
+}

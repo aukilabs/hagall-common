@@ -1,0 +1,15 @@
+name: Tests
+
+on: [pull_request]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    uses: aukilabs/go-tooling/.github/workflows/tests.yml@main
+    name: Tests
+    with:
+      enable_coverage: true
+
