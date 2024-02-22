@@ -522,7 +522,9 @@ func (c *Client) Pair(ctx context.Context, in PairIn) error {
 			WithTag("version", in.Version).
 			WithTag("modules", in.Modules).
 			WithTag("feature_flags", in.FeatureFlags).
-			Info("registering hagall to hds")
+			WithTag("endpoint_signature", endpointSignature).
+			WithTag("timestamp", timestamp).
+			Debug("registering hagall to hds")
 
 		if err := c.PostServer(ctx, PostServerIn{
 			Endpoint:          in.Endpoint,
