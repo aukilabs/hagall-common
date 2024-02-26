@@ -1,3 +1,14 @@
+TAG ?= $(shell git rev-parse HEAD)
+DOCKER_REGISTRY ?= aukilabs
+
+go-tidy:
+	go mod tidy
+
+go-vendor: go-tidy
+	go mod vendor
+
+build: go-vendor
+	docker build -t $(DOCKER_REGISTRY)/scenariorunner:${TAG} -t $(DOCKER_REGISTRY)/scenariorunner:latest --build-arg VERSION=$(shell git describe --tags --abbrev=0) -f ./scenariorunner/Dockerfile .
 
 go-normalize:
 	@go fmt ./...
