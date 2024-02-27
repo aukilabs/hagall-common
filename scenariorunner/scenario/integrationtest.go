@@ -23,7 +23,10 @@ func (s integrationTest) Run(ctx context.Context, opts Options) error {
 
 	start := time.Now()
 
-	logs.Debug("starting integration test")
+	logs.WithTag("hds", opts.HDS).
+		WithTag("hagall_endpoint", opts.HagallPublicEndpoint).
+		WithTag("hagall", opts.Hagall).
+		Info("starting integration test")
 
 	if err := runIntegrationTest(ctx, opts); err != nil {
 		logs.WithTag("attack_total_duration", time.Since(start)).
@@ -31,8 +34,8 @@ func (s integrationTest) Run(ctx context.Context, opts Options) error {
 		return err
 	}
 
-	logs.WithTag("attack_total_duration", time.Since(start)).
-		Debug("integration test succeeded")
+	logs.WithTag("test_duration", time.Since(start)).
+		Info("integration test succeeded")
 
 	return nil
 }
