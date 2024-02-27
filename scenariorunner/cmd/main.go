@@ -60,11 +60,6 @@ func run(ctx context.Context, opts scenario.Options) {
 		}
 	}
 
-	logs.WithTag("hds", opts.HDS).
-		WithTag("hagall", opts.Hagall).
-		WithTag("scenario", opts.Scenario).
-		Info("start running a scenario on hagall server")
-
 	scenario.Init()
 
 	if opts.ListScenario {
