@@ -4,7 +4,6 @@ go 1.21
 
 require (
 	github.com/aukilabs/go-tooling v0.14.1
-	github.com/aukilabs/hail v0.5.7
 	github.com/ethereum/go-ethereum v1.13.13
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.6.0

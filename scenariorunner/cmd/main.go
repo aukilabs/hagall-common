@@ -9,7 +9,7 @@ import (
 
 	"github.com/aukilabs/go-tooling/pkg/cli"
 	"github.com/aukilabs/go-tooling/pkg/logs"
-	"github.com/aukilabs/hail/scenariorunner/scenario"
+	"github.com/aukilabs/hagall-common/scenariorunner/scenario"
 	"github.com/segmentio/encoding/json"
 )
 
