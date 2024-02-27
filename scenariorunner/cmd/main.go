@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"syscall"
@@ -10,7 +11,6 @@ import (
 	"github.com/aukilabs/go-tooling/pkg/cli"
 	"github.com/aukilabs/go-tooling/pkg/logs"
 	"github.com/aukilabs/hagall-common/scenariorunner/scenario"
-	"github.com/segmentio/encoding/json"
 )
 
 var (
