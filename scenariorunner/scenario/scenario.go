@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/aukilabs/go-tooling/pkg/errors"
 	hds "github.com/aukilabs/hagall-common/hdsclient"
@@ -15,18 +16,19 @@ import (
 
 // Options provides scenario runner configuration
 type Options struct {
-	Hagall               string               `env:"SCENARIO_HAGALL_ADDR"                help:"The Hagall server address to attack."`
-	HagallPublicEndpoint string               `env:"SCENARIO_HAGALL_PUBLIC_ENDPOINT"     help:"The Hagall server public endpoint."`
-	HDS                  string               `env:"SCENARIO_HDS_ADDR"                   help:"The HDS server address to retrieve Hagall servers."`
-	AppKey               string               `env:"SCENARIO_APP_KEY"                    help:"The app key to auth with HDS."`
-	AppSecret            string               `env:"SCENARIO_APP_SECRET"                 help:"The app secret to auth with HDS."`
-	LogLevel             string               `env:"SCENARIO_LOG_LEVEL"                  help:"Log level (debug|info|warning|error)."`
-	LogIndent            bool                 `env:"SCENARIO_LOG_INDENT"                 help:"Indents logs."`
-	Scenario             string               `env:"SCENARIO_NAME"                       help:"Scenario to run, see --list-scenario for supported scenarios"`
-	ListScenario         bool                 `env:"-"                                   help:"List Scenarios"`
-	SessionAttack        SessionAttackOptions `env:"SCENARIO_SESSION_ATTACK"             help:"Session Attack scenario configuration"`
-	Help                 bool                 `env:"-"                                   help:"Show help."`
-	Version              bool                 `env:"-"                                   help:"Show version."`
+	Hagall                 string               `env:"SCENARIO_HAGALL_ADDR"                help:"The Hagall server address to attack."`
+	HagallPublicEndpoint   string               `env:"SCENARIO_HAGALL_PUBLIC_ENDPOINT"     help:"The Hagall server public endpoint."`
+	HDS                    string               `env:"SCENARIO_HDS_ADDR"                   help:"The HDS server address to retrieve Hagall servers."`
+	AppKey                 string               `env:"SCENARIO_APP_KEY"                    help:"The app key to auth with HDS."`
+	AppSecret              string               `env:"SCENARIO_APP_SECRET"                 help:"The app secret to auth with HDS."`
+	LogLevel               string               `env:"SCENARIO_LOG_LEVEL"                  help:"Log level (debug|info|warning|error)."`
+	LogIndent              bool                 `env:"SCENARIO_LOG_INDENT"                 help:"Indents logs."`
+	Scenario               string               `env:"SCENARIO_NAME"                       help:"Scenario to run, see --list-scenario for supported scenarios."`
+	ListScenario           bool                 `env:"-"                                   help:"List Scenarios."`
+	SessionAttack          SessionAttackOptions `env:"SCENARIO_SESSION_ATTACK"             help:"Session Attack scenario configuration."`
+	IntegrationTestTimeout time.Duration        `env:"SCENARIO_INTEGRATION_TEST_TIMEOUT"   help:"The time out for integration test."`
+	Help                   bool                 `env:"-"                                   help:"Show help."`
+	Version                bool                 `env:"-"                                   help:"Show version."`
 }
 
 // Scenario is a interface to run actual scenario

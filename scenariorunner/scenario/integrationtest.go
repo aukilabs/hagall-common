@@ -18,7 +18,7 @@ type integrationTest struct{}
 
 // Run implement scenario's Run method
 func (s integrationTest) Run(ctx context.Context, opts Options) error {
-	ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
+	ctx, cancel := context.WithTimeout(ctx, opts.IntegrationTestTimeout)
 	defer cancel()
 
 	start := time.Now()
@@ -26,10 +26,11 @@ func (s integrationTest) Run(ctx context.Context, opts Options) error {
 	logs.WithTag("hds", opts.HDS).
 		WithTag("hagall_endpoint", opts.HagallPublicEndpoint).
 		WithTag("hagall", opts.Hagall).
+		WithTag("timeout", opts.IntegrationTestTimeout).
 		Info("starting integration test")
 
 	if err := runIntegrationTest(ctx, opts); err != nil {
-		logs.WithTag("attack_total_duration", time.Since(start)).
+		logs.WithTag("test_duration", time.Since(start)).
 			Error(errors.Newf("integration test failed!").Wrap(err))
 		return err
 	}

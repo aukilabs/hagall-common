@@ -20,7 +20,7 @@ var (
 
 func main() {
 	opts := scenario.Options{
-		Hagall:    "http://host.docker.internal:4000",
+		Hagall:    "http://localhost:4000",
 		HDS:       "http://localhost:4002",
 		LogLevel:  "info",
 		AppKey:    "0x0",
@@ -30,7 +30,8 @@ func main() {
 			AttackDuration: time.Second * 5,
 			AttackDefer:    time.Millisecond * 1,
 		},
-		Scenario: "session-attack",
+		Scenario:               "session-attack",
+		IntegrationTestTimeout: time.Second,
 	}
 	cli.Register().
 		Help("Launches a test scenario on a Hagall server.").
