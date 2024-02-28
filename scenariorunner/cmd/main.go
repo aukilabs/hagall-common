@@ -20,11 +20,12 @@ var (
 
 func main() {
 	opts := scenario.Options{
-		Hagall:    "http://localhost:4000",
-		HDS:       "http://localhost:4002",
-		LogLevel:  "info",
-		AppKey:    "0x0",
-		AppSecret: "0x0",
+		Hagall:               "http://localhost:4000",
+		HagallPublicEndpoint: "http://localhost:4000",
+		HDS:                  "http://localhost:4002",
+		LogLevel:             "info",
+		AppKey:               "0x0",
+		AppSecret:            "0x0",
 		SessionAttack: scenario.SessionAttackOptions{
 			AttackCount:    1000,
 			AttackDuration: time.Second * 5,
