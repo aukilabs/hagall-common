@@ -246,8 +246,7 @@ func (c *Client) HandleServerRegistration(w http.ResponseWriter, r *http.Request
 	secret := r.Header.Get(httpcmn.HeaderHagallJWTSecretHeaderKey)
 	if secret == "" {
 		httpcmn.BadRequest(w, errors.New("server registration failed").
-			WithTag("server_id", id).
-			WithTag("server_secret", secret))
+			WithTag("server_id", id))
 		return
 	}
 	c.SetServerData(id, secret)
@@ -258,7 +257,7 @@ func (c *Client) HandleServerRegistration(w http.ResponseWriter, r *http.Request
 
 	logs.WithTag("server_id", id).
 		WithTag("status", c.GetRegistrationStatus()).
-		Debug("server registration succeeded")
+		Info("hagall is successfully registered to hds")
 }
 
 // HandleHealthCheck handles Hagall server health checks.
@@ -556,7 +555,7 @@ func (c *Client) Pair(ctx context.Context, in PairIn) error {
 			WithTag("modules", in.Modules).
 			WithTag("feature_flags", in.FeatureFlags).
 			WithTag("retry_count", retried).
-			Info("hagall is successfully registered to hds")
+			Info("hagall is registered to hds (pending verification)")
 
 		if c.GetRegistrationStatus() != RegistrationStatusRegistered {
 			c.setRegistrationStatus(RegistrationStatusPendingVerification)
