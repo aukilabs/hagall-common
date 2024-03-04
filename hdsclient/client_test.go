@@ -3,6 +3,7 @@ package hdsclient
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -41,31 +42,53 @@ func TestClientHandleRegistration(t *testing.T) {
 func TestClientRegistration(t *testing.T) {
 	setupTestLog(t)
 
-	t.Run("registration success - pending verification", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	t.Run("registration success", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
 		registeredCh := make(chan struct{})
+		var clientVerification func(w http.ResponseWriter, r *http.Request)
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			vw := httptest.NewRecorder()
+			vr := httptest.NewRequest(http.MethodPost, "/registration", nil)
+
+			body, err := io.ReadAll(req.Body)
+			require.NoError(t, err)
+
+			var postBody PostServerIn
+			err = json.Unmarshal(body, &postBody)
+			require.NoError(t, err)
+
+			vr.Header.Set(httpcmn.HeaderHagallIDKey, "0x1")
+			vr.Header.Set(httpcmn.HeaderHagallJWTSecretHeaderKey, httpcmn.MakeJWTSecret())
+			vr.Header.Set(httpcmn.HeaderHagallRegistrationStateKey, postBody.State)
+
+			clientVerification(vw, vr)
+
+			require.Equal(t, http.StatusOK, vw.Result().StatusCode)
 			w.WriteHeader(http.StatusOK)
 			registeredCh <- struct{}{}
 		}))
 
+		client := NewClient(WithHagallEndpoint("http://test"),
+			WithHDSEndpoint(server.URL),
+			WithEncoder(json.Marshal),
+			WithDecoder(json.Unmarshal),
+			WithTransport(http.DefaultTransport))
+
+		clientVerification = client.HandleServerRegistration
+
 		clientCh := make(chan struct{})
 		go func() {
-			client := NewClient(WithHagallEndpoint("http://test"),
-				WithHDSEndpoint(server.URL),
-				WithEncoder(json.Marshal),
-				WithDecoder(json.Unmarshal),
-				WithTransport(http.DefaultTransport))
 			err := client.Pair(ctx, PairIn{
 				Endpoint:             server.URL,
 				HealthCheckTTL:       1 * time.Minute,
 				RegistrationInterval: 100 * time.Millisecond,
-				RegistrationRetries:  1,
+				RegistrationRetries:  2,
 			})
+
 			require.ErrorIs(t, err, context.Canceled)
-			require.Equal(t, RegistrationStatusPendingVerification, client.GetRegistrationStatus())
+			require.Equal(t, RegistrationStatusRegistered, client.GetRegistrationStatus())
 			clientCh <- struct{}{}
 		}()
 		<-registeredCh
@@ -77,28 +100,49 @@ func TestClientRegistration(t *testing.T) {
 	})
 
 	t.Run("registration success with retries", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
 		retried := 0
 		registeredCh := make(chan struct{})
+		var clientVerification func(w http.ResponseWriter, r *http.Request)
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			retried++
 			if retried == 1 {
 				w.WriteHeader(http.StatusInternalServerError)
 			} else {
+				vw := httptest.NewRecorder()
+				vr := httptest.NewRequest(http.MethodPost, "/registration", nil)
+
+				body, err := io.ReadAll(req.Body)
+				require.NoError(t, err)
+
+				var postBody PostServerIn
+				err = json.Unmarshal(body, &postBody)
+				require.NoError(t, err)
+
+				vr.Header.Set(httpcmn.HeaderHagallIDKey, "0x1")
+				vr.Header.Set(httpcmn.HeaderHagallJWTSecretHeaderKey, httpcmn.MakeJWTSecret())
+				vr.Header.Set(httpcmn.HeaderHagallRegistrationStateKey, postBody.State)
+
+				clientVerification(vw, vr)
+
+				require.Equal(t, http.StatusOK, vw.Result().StatusCode)
 				w.WriteHeader(http.StatusOK)
 				registeredCh <- struct{}{}
 			}
 		}))
 
+		client := NewClient(WithHagallEndpoint("http://test"),
+			WithHDSEndpoint(server.URL),
+			WithEncoder(json.Marshal),
+			WithDecoder(json.Unmarshal),
+			WithTransport(http.DefaultTransport))
+
+		clientVerification = client.HandleServerRegistration
+
 		clientCh := make(chan struct{})
 		go func() {
-			client := NewClient(WithHagallEndpoint("http://test"),
-				WithHDSEndpoint(server.URL),
-				WithEncoder(json.Marshal),
-				WithDecoder(json.Unmarshal),
-				WithTransport(http.DefaultTransport))
 			err := client.Pair(ctx, PairIn{
 				Endpoint:             server.URL,
 				HealthCheckTTL:       1 * time.Minute,
@@ -107,7 +151,7 @@ func TestClientRegistration(t *testing.T) {
 			})
 
 			require.ErrorIs(t, err, context.Canceled)
-			require.Equal(t, RegistrationStatusPendingVerification, client.GetRegistrationStatus())
+			require.Equal(t, RegistrationStatusRegistered, client.GetRegistrationStatus())
 			clientCh <- struct{}{}
 		}()
 		<-registeredCh
@@ -120,7 +164,7 @@ func TestClientRegistration(t *testing.T) {
 	})
 
 	t.Run("registration failed exceeded maximum retries", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
 		retried := 0
@@ -153,7 +197,7 @@ func TestClientRegistration(t *testing.T) {
 	})
 
 	t.Run("registration retries with incremental delay", func(t *testing.T) {
-		ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
 		retried := 0
@@ -188,6 +232,156 @@ func TestClientRegistration(t *testing.T) {
 
 		<-clientCh
 		require.Equal(t, 3, retried)
+	})
+
+	t.Run("registration failed - wrong state", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		registeredCh := make(chan struct{})
+		var clientVerification func(w http.ResponseWriter, r *http.Request)
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			vw := httptest.NewRecorder()
+			vr := httptest.NewRequest(http.MethodPost, "/registration", nil)
+
+			vr.Header.Set(httpcmn.HeaderHagallIDKey, "0x1")
+			vr.Header.Set(httpcmn.HeaderHagallJWTSecretHeaderKey, httpcmn.MakeJWTSecret())
+			vr.Header.Set(httpcmn.HeaderHagallRegistrationStateKey, "wrong-state")
+
+			clientVerification(vw, vr)
+
+			require.Equal(t, http.StatusForbidden, vw.Result().StatusCode)
+			w.WriteHeader(http.StatusForbidden)
+			registeredCh <- struct{}{}
+		}))
+
+		client := NewClient(WithHagallEndpoint("http://test"),
+			WithHDSEndpoint(server.URL),
+			WithEncoder(json.Marshal),
+			WithDecoder(json.Unmarshal),
+			WithTransport(http.DefaultTransport))
+
+		clientVerification = client.HandleServerRegistration
+
+		clientCh := make(chan struct{})
+		go func() {
+			err := client.Pair(ctx, PairIn{
+				Endpoint:             server.URL,
+				HealthCheckTTL:       1 * time.Minute,
+				RegistrationInterval: 100 * time.Millisecond,
+				RegistrationRetries:  1,
+			})
+
+			require.Error(t, err)
+			require.Equal(t, RegistrationStatusFailed, client.GetRegistrationStatus())
+			clientCh <- struct{}{}
+		}()
+		<-registeredCh
+		<-clientCh
+	})
+
+	t.Run("registration failed - missing secret", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		registeredCh := make(chan struct{})
+		var clientVerification func(w http.ResponseWriter, r *http.Request)
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			vw := httptest.NewRecorder()
+			vr := httptest.NewRequest(http.MethodPost, "/registration", nil)
+
+			body, err := io.ReadAll(req.Body)
+			require.NoError(t, err)
+
+			var postBody PostServerIn
+			err = json.Unmarshal(body, &postBody)
+			require.NoError(t, err)
+
+			vr.Header.Set(httpcmn.HeaderHagallIDKey, "0x1")
+			vr.Header.Set(httpcmn.HeaderHagallRegistrationStateKey, postBody.State)
+
+			clientVerification(vw, vr)
+
+			require.Equal(t, http.StatusBadRequest, vw.Result().StatusCode)
+			w.WriteHeader(http.StatusForbidden)
+			registeredCh <- struct{}{}
+		}))
+
+		client := NewClient(WithHagallEndpoint("http://test"),
+			WithHDSEndpoint(server.URL),
+			WithEncoder(json.Marshal),
+			WithDecoder(json.Unmarshal),
+			WithTransport(http.DefaultTransport))
+
+		clientVerification = client.HandleServerRegistration
+
+		clientCh := make(chan struct{})
+		go func() {
+			err := client.Pair(ctx, PairIn{
+				Endpoint:             server.URL,
+				HealthCheckTTL:       1 * time.Minute,
+				RegistrationInterval: 100 * time.Millisecond,
+				RegistrationRetries:  1,
+			})
+
+			require.Error(t, err)
+			require.Equal(t, RegistrationStatusFailed, client.GetRegistrationStatus())
+			clientCh <- struct{}{}
+		}()
+		<-registeredCh
+		<-clientCh
+	})
+
+	t.Run("registration failed - missing session id", func(t *testing.T) {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		registeredCh := make(chan struct{})
+		var clientVerification func(w http.ResponseWriter, r *http.Request)
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+			vw := httptest.NewRecorder()
+			vr := httptest.NewRequest(http.MethodPost, "/registration", nil)
+
+			body, err := io.ReadAll(req.Body)
+			require.NoError(t, err)
+
+			var postBody PostServerIn
+			err = json.Unmarshal(body, &postBody)
+			require.NoError(t, err)
+
+			vr.Header.Set(httpcmn.HeaderHagallJWTSecretHeaderKey, httpcmn.MakeJWTSecret())
+			vr.Header.Set(httpcmn.HeaderHagallRegistrationStateKey, postBody.State)
+
+			clientVerification(vw, vr)
+
+			require.Equal(t, http.StatusBadRequest, vw.Result().StatusCode)
+			w.WriteHeader(http.StatusForbidden)
+			registeredCh <- struct{}{}
+		}))
+
+		client := NewClient(WithHagallEndpoint("http://test"),
+			WithHDSEndpoint(server.URL),
+			WithEncoder(json.Marshal),
+			WithDecoder(json.Unmarshal),
+			WithTransport(http.DefaultTransport))
+
+		clientVerification = client.HandleServerRegistration
+
+		clientCh := make(chan struct{})
+		go func() {
+			err := client.Pair(ctx, PairIn{
+				Endpoint:             server.URL,
+				HealthCheckTTL:       1 * time.Minute,
+				RegistrationInterval: 100 * time.Millisecond,
+				RegistrationRetries:  1,
+			})
+
+			require.Error(t, err)
+			require.Equal(t, RegistrationStatusFailed, client.GetRegistrationStatus())
+			clientCh <- struct{}{}
+		}()
+		<-registeredCh
+		<-clientCh
 	})
 }
 
