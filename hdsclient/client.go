@@ -257,7 +257,7 @@ func (c *Client) HandleServerRegistration(w http.ResponseWriter, r *http.Request
 
 	logs.WithTag("server_id", id).
 		WithTag("status", c.GetRegistrationStatus()).
-		Info("hagall is successfully registered to hds")
+		Info("hagall verification completed")
 }
 
 // HandleHealthCheck handles Hagall server health checks.
@@ -480,8 +480,6 @@ func (c *Client) Pair(ctx context.Context, in PairIn) error {
 			// schedule next registration check
 			status := c.GetRegistrationStatus()
 			switch status {
-			case RegistrationStatusPendingVerification:
-				fallthrough
 			case RegistrationStatusRegistered:
 				retried = 0
 				// wait for hds registration callback back, in heathcheck TTL
@@ -555,11 +553,8 @@ func (c *Client) Pair(ctx context.Context, in PairIn) error {
 			WithTag("modules", in.Modules).
 			WithTag("feature_flags", in.FeatureFlags).
 			WithTag("retry_count", retried).
-			Info("hagall is registered to hds (pending verification)")
-
-		if c.GetRegistrationStatus() != RegistrationStatusRegistered {
-			c.setRegistrationStatus(RegistrationStatusPendingVerification)
-		}
+			WithTag("status", c.GetRegistrationStatus()).
+			Info("hagall is successfully registered to hds")
 
 		return nil
 	}
