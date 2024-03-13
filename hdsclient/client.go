@@ -618,7 +618,8 @@ func isRetryableError(err error) bool {
 	statusCodeStr := rErr.Tags()["status_code"]
 	statusCode, err := strconv.Atoi(statusCodeStr)
 	if err != nil {
-		logs.Warn(errors.New("failed to convert status code").WithTag("status_code", statusCodeStr))
+		logs.WithTag("status_code", statusCodeStr).
+			Warn("failed to convert status code")
 		return true
 	}
 

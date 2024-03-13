@@ -66,15 +66,13 @@ func Conflict(w http.ResponseWriter, err error) {
 }
 
 func HTTPError(w http.ResponseWriter, code int, err error) {
-	logger := logs.WithTag("code", code)
-	if err != nil {
-		logger = logger.WithTag("error", err)
-	}
-
 	if code >= 500 {
-		logger.Error(errors.New("http request returned an error"))
+		logs.WithTag("code", code).
+			Error(errors.New("http request returned an error").Wrap(err))
 	} else {
-		logger.Info("http request returned an error")
+		logs.WithTag("code", code).
+			WithTag("error", err).
+			Info("http request returned an error")
 	}
 
 	http.Error(w, GetErrorMessage(err), code)
