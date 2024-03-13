@@ -42,7 +42,7 @@ func Forbidden(w http.ResponseWriter, err error) {
 }
 
 func NotFound(w http.ResponseWriter) {
-	http.Error(w, "", http.StatusNotFound)
+	HTTPError(w, http.StatusNotFound, nil)
 }
 
 func Unauthorized(w http.ResponseWriter, err error) {
@@ -50,17 +50,11 @@ func Unauthorized(w http.ResponseWriter, err error) {
 }
 
 func InternalServerError(w http.ResponseWriter, err error) {
-	if err != nil {
-		logs.WithTag("code", http.StatusInternalServerError).
-			WithTag("error", err.Error()).
-			Error(errors.New("internal error handling http request").Wrap(err))
-	}
-
-	http.Error(w, GetErrorMessage(err), http.StatusInternalServerError)
+	HTTPError(w, http.StatusInternalServerError, err)
 }
 
 func NotImplemented(w http.ResponseWriter) {
-	http.Error(w, "", http.StatusNotImplemented)
+	HTTPError(w, http.StatusNotImplemented, nil)
 }
 
 func PaymentRequired(w http.ResponseWriter, err error) {
@@ -72,10 +66,15 @@ func Conflict(w http.ResponseWriter, err error) {
 }
 
 func HTTPError(w http.ResponseWriter, code int, err error) {
+	logger := logs.WithTag("code", code)
 	if err != nil {
-		logs.WithTag("code", code).
-			WithTag("error", err.Error()).
-			Warn("http request returned an error")
+		logger = logger.WithTag("error", err)
+	}
+
+	if code >= 500 {
+		logger.Error(errors.New("http request returned an error"))
+	} else {
+		logger.Info("http request returned an error")
 	}
 
 	http.Error(w, GetErrorMessage(err), code)
