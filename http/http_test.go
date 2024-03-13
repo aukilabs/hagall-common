@@ -30,7 +30,7 @@ func TestHTTPError(t *testing.T) {
 	t.Run("return error message if defined", func(t *testing.T) {
 		rec := httptest.NewRecorder()
 
-		HTTPError(rec, http.StatusInternalServerError, errors.New(ErrDuplicatedWalletAddress))
+		HTTPError(rec, http.StatusInternalServerError, errors.New("test error").Wrap(ErrDuplicatedWalletAddress))
 		require.Equal(t, http.StatusInternalServerError, rec.Code)
 
 		body, err := io.ReadAll(rec.Result().Body)
