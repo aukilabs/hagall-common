@@ -35,7 +35,7 @@ func TestHTTPError(t *testing.T) {
 
 		body, err := io.ReadAll(rec.Result().Body)
 		require.NoError(t, err)
-		require.Equal(t, "Address already registered, please generate a new address", strings.TrimSpace(string(body)))
+		require.Equal(t, "Wallet already registered for your endpoint or another endpoint", strings.TrimSpace(string(body)))
 	})
 
 	t.Run("return empty if undefined", func(t *testing.T) {
