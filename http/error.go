@@ -15,7 +15,7 @@ func GetErrorMessage(err error) string {
 
 	switch true {
 	case errors.Is(err, ErrDuplicatedWalletAddress):
-		return "Address already registered, please generate a new address"
+		return "Wallet already registered for your endpoint or another endpoint"
 	case errors.Is(err, ErrBadRequest):
 		return "Invalid request body"
 	}
