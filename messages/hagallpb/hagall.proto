@@ -886,7 +886,7 @@ message SignedPingResponse {
   // The latency metrics
   LatencyData data = 3;
 
-  // Signature of the msg
+  // Signature of the binary in the data field
   string sig = 4;
 }
 
