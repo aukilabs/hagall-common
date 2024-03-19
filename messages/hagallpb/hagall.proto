@@ -858,3 +858,61 @@ message ReceiptResponse {
   // The id that identifies a request.
   uint32 request_id = 1337;
 }
+
+message SignedPingRequest {
+  // The type of the message
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The number of iteration
+  uint32 number_of_iteration = 3;
+}
+
+message SignedPingResponse {
+  // The type of the message
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The latency metrics
+  LatencyData data = 3;
+
+  // Signature of the msg
+  string sig = 4;
+}
+
+message LatencyData {
+  // The creation timestamp of the latency data
+  google.protobuf.Timestamp created_at = 1;
+
+  // Minimum latency value
+  double min = 2;
+
+  // Maximum latency value
+  double max = 3;
+
+  // Mean (average) latency value
+  double mean = 4;
+
+  // 95th percentile latency value
+  double p95 = 5;
+
+  // Identifier for the session
+  string session_id = 6;
+
+  // Identifier for the client
+  string client_id = 7;
+
+  // Wallet address of the client
+  string address = 8;
+}
+
