@@ -913,7 +913,7 @@ message LatencyData {
   uint32 iteration_count = 7;
 
   // A list of request ids used to calculate the latency
-  repeated string ping_request_ids = 8;
+  repeated uint32 ping_request_ids = 8;
 
   // Identifier for the session
   string session_id = 9;
