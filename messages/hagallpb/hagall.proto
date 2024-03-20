@@ -871,6 +871,9 @@ message SignedLatencyRequest {
 
   // The number of iteration
   uint32 iteration_count = 3;
+
+  // The wallet address
+  string wallet_address = 4;
 }
 
 message SignedLatencyResponse {
