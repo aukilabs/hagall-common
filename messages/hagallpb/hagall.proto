@@ -129,8 +129,8 @@ enum MsgType {
   MSG_TYPE_RECEIPT_REQUEST = 40;
   MSG_TYPE_RECEIPT_RESPONSE = 41;
 
-  MSG_TYPE_SIGNED_PING_REQUEST = 42;
-  MSG_TYPE_SIGNED_PING_RESPONSE = 43;
+  MSG_TYPE_SIGNED_LATENCY_REQUEST = 42;
+  MSG_TYPE_SIGNED_LATENCY_RESPONSE = 43;
 
   reserved 100 to max;
 }
@@ -859,7 +859,7 @@ message ReceiptResponse {
   uint32 request_id = 1337;
 }
 
-message SignedPingRequest {
+message SignedLatencyRequest {
   // The type of the message
   MsgType type = 1;
 
@@ -873,7 +873,7 @@ message SignedPingRequest {
   uint32 iteration_count = 3;
 }
 
-message SignedPingResponse {
+message SignedLatencyResponse {
   // The type of the message
   MsgType type = 1;
 
@@ -909,12 +909,18 @@ message LatencyData {
   // Last latency value
   double last = 6;
 
+  // The number of iteration
+  uint32 iteration_count = 7;
+
+  // A list of request ids used to calculate the latency
+  repeated string ping_request_ids = 8;
+
   // Identifier for the session
-  string session_id = 7;
+  string session_id = 9;
 
   // Identifier for the client
-  string client_id = 8;
+  string client_id = 10;
 
   // Wallet address of the client
-  string wallet_address = 9;
+  string wallet_address = 11;
 }
