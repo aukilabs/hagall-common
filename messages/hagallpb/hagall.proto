@@ -870,7 +870,7 @@ message SignedPingRequest {
   uint32 request_id = 1337;
 
   // The number of iteration
-  uint32 number_of_iteration = 3;
+  uint32 iteration_count = 3;
 }
 
 message SignedPingResponse {
@@ -887,7 +887,7 @@ message SignedPingResponse {
   LatencyData data = 3;
 
   // Signature of the binary in the data field
-  string sig = 4;
+  string signature = 4;
 }
 
 message LatencyData {
@@ -906,13 +906,15 @@ message LatencyData {
   // 95th percentile latency value
   double p95 = 5;
 
+  // Last latency value
+  double last = 6;
+
   // Identifier for the session
-  string session_id = 6;
+  string session_id = 7;
 
   // Identifier for the client
-  string client_id = 7;
+  string client_id = 8;
 
   // Wallet address of the client
-  string address = 8;
+  string wallet_address = 9;
 }
-
