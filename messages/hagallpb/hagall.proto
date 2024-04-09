@@ -898,19 +898,19 @@ message LatencyData {
   google.protobuf.Timestamp created_at = 1;
 
   // Minimum latency value
-  double min = 2;
+  float min = 2;
 
   // Maximum latency value
-  double max = 3;
+  float max = 3;
 
   // Mean (average) latency value
-  double mean = 4;
+  float mean = 4;
 
   // 95th percentile latency value
-  double p95 = 5;
+  float p95 = 5;
 
   // Last latency value
-  double last = 6;
+  float last = 6;
 
   // The number of iteration
   uint32 iteration_count = 7;
