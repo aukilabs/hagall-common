@@ -11,7 +11,7 @@ type ClientOpts func(*Client)
 
 func WithHagallEndpoint(v string) ClientOpts {
 	return func(c *Client) {
-		c.HagallEndpoint = httpcmn.NormalizeEndpoint(v)
+		c.HagallEndpoint = v
 	}
 }
 
