@@ -449,6 +449,9 @@ func (c *Client) do(req *http.Request, out interface{}) error {
 	}
 
 	if res.StatusCode >= 400 {
+		if res.StatusCode == http.StatusPaymentRequired {
+			logs.Warn("Please make sure your wallet is staked.")
+		}
 		return errors.New("request failed").
 			WithTag("status", res.Status).
 			WithTag("status_code", res.StatusCode).
