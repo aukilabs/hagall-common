@@ -195,7 +195,13 @@ func (c *Client) PostServer(ctx context.Context, in PostServerIn) error {
 		in.Endpoint = c.HagallEndpoint
 	}
 
-	return c.Post(ctx, "/servers", in)
+	if err := c.Post(ctx, "/servers", in); err != nil {
+		if errors.Tag(err, "status_code") == "402" {
+			return errors.New("Please make sure you have staked the right amount of tokens from the supplied wallet before registering your server").Wrap(err)
+		}
+		return err
+	}
+	return nil
 }
 
 // HandleServerRegistration handles Hagall server registration.
