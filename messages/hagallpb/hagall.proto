@@ -887,7 +887,7 @@ message SignedLatencyResponse {
   uint32 request_id = 1337;
 
   // The latency metrics
-  LatencyData data = 3;
+  bytes data = 3; // LatencyData
 
   // Signature of the binary in the data field
   string signature = 4;
