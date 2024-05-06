@@ -2,13 +2,11 @@ module github.com/aukilabs/hagall-common
 
 go 1.21
 
-retract (
-    v0.1.9 // Wrong publish
-)
+retract v0.1.9 // Wrong publish
 
 require (
 	github.com/aukilabs/go-tooling v0.14.5
-	github.com/ethereum/go-ethereum v1.13.14
+	github.com/ethereum/go-ethereum v1.13.15
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.9.0
