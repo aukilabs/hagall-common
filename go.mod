@@ -2,13 +2,11 @@ module github.com/aukilabs/hagall-common
 
 go 1.21
 
-retract (
-    v0.1.9 // Wrong publish
-)
+retract v0.1.9 // Wrong publish
 
 require (
-	github.com/aukilabs/go-tooling v0.14.6
-	github.com/ethereum/go-ethereum v1.14.2
+	github.com/aukilabs/go-tooling v0.14.7
+	github.com/ethereum/go-ethereum v1.14.3
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.9.0
@@ -23,8 +21,8 @@ require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.3.0 // indirect
 	github.com/holiman/uint256 v1.2.4 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	go.opentelemetry.io/otel v1.26.0 // indirect
-	go.opentelemetry.io/otel/trace v1.26.0 // indirect
+	go.opentelemetry.io/otel v1.27.0 // indirect
+	go.opentelemetry.io/otel/trace v1.27.0 // indirect
 	golang.org/x/crypto v0.23.0 // indirect
 	golang.org/x/sys v0.20.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
