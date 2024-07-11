@@ -63,9 +63,8 @@ func ValidateSignedMessage(message string, signature string) (common.Address, er
 	return crypto.PubkeyToAddress(*publicKeyECDSA), nil
 }
 
-// VerifySignedMessage verifies a signed message against a public key
-// and returns wallet address recovered from signature. Expects signature
-// in 0x string format (hex).
+// VerifySignedMessage verifies a signed message against a public key and
+// returns matching wallet address. Expects signature in 0x string format (hex).
 func VerifySignedMessage(publicKey *ecdsa.PublicKey, message, signature string) (common.Address, error) {
 	if publicKey == nil {
 		return common.Address{}, errors.New("public key is nil")
@@ -85,10 +84,5 @@ func VerifySignedMessage(publicKey *ecdsa.PublicKey, message, signature string) 
 		return common.Address{}, errors.New("signature is incorrect")
 	}
 
-	publicKeyECDSA, err := crypto.SigToPub(hash, common.FromHex(signature))
-	if err != nil {
-		return common.Address{}, err
-	}
-
-	return crypto.PubkeyToAddress(*publicKeyECDSA), nil
+	return crypto.PubkeyToAddress(*publicKey), nil
 }
