@@ -48,16 +48,9 @@ func ValidateSignedMessage(message string, signature string) (common.Address, er
 		return common.Address{}, errors.New("signature is empty")
 	}
 
-	hash := crypto.Keccak256([]byte(message))
-	publicKeyECDSA, err := crypto.SigToPub(hash, common.FromHex(signature))
+	publicKeyECDSA, err := crypto.SigToPub(crypto.Keccak256([]byte(message)), common.FromHex(signature))
 	if err != nil {
 		return common.Address{}, err
-	}
-
-	publicKeyBytes := crypto.FromECDSAPub(publicKeyECDSA)
-	signatureBytes := common.FromHex(signature)[:64]
-	if !crypto.VerifySignature(publicKeyBytes, hash, signatureBytes) {
-		return common.Address{}, errors.New("signature is incorrect")
 	}
 
 	return crypto.PubkeyToAddress(*publicKeyECDSA), nil
