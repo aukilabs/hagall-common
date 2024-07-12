@@ -5,8 +5,8 @@ go 1.21
 retract v0.1.9 // Wrong publish
 
 require (
-	github.com/aukilabs/go-tooling v0.14.7
-	github.com/ethereum/go-ethereum v1.14.6
+	github.com/aukilabs/go-tooling v0.15.8
+	github.com/ethereum/go-ethereum v1.14.7
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/google/uuid v1.6.0
 	github.com/stretchr/testify v1.9.0
