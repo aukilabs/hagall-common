@@ -34,17 +34,23 @@ func SignIdentity(endpoint, secret string) (string, error) {
 	return token.SignedString([]byte(secret))
 }
 
-// VerifyHagallUserAccessToken verifies signed token with the secret.
+// VerifyHagallUserAccessToken verifies that the token was signed by the secret.
 func VerifyHagallUserAccessToken(token, secret string) error {
 	var claims HagallUserClaim
 
 	_, err := jwt.ParseWithClaims(token, &claims, func(t *jwt.Token) (interface{}, error) {
-		// Further validations like expiration are validated by the jwt package.
+		// Further validations like expiration checking are done in the jwt package.
 		return []byte(secret), nil
 	})
 	if err != nil {
 		var validationError *jwt.ValidationError
 		if errors.As(err, &validationError) {
+			if validationError.Errors == jwt.ValidationErrorIssuedAt { // "token used before issued" error
+				if claims.IssuedAt != nil && claims.IssuedAt.Unix()-time.Now().Unix() < 10 { // 10 seconds leeway
+					return nil
+				}
+			}
+
 			if validationError.Inner != nil {
 				return errors.New("parse token error").
 					WithTag("jwt_error_flags", validationError.Errors).

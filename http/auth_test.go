@@ -117,6 +117,47 @@ func TestVerifyHagallUserAccessToken(t *testing.T) {
 		require.NoError(t, err)
 	})
 
+	t.Run("allow tokens used <10 seconds before issuance", func(t *testing.T) {
+		now := time.Now()
+		tokenWithClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, HagallUserClaim{
+			RegisteredClaims: jwt.RegisteredClaims{
+				Issuer:    "HDS",
+				Subject:   "",
+				IssuedAt:  jwt.NewNumericDate(now.Add(9 * time.Second)),
+				ExpiresAt: jwt.NewNumericDate(now.Add(1 * time.Minute)),
+				ID:        uuid.NewString(),
+			},
+			AppKey: "0x0",
+		})
+
+		token, err := tokenWithClaims.SignedString([]byte(secret))
+		require.NoError(t, err)
+
+		err = VerifyHagallUserAccessToken(token, secret)
+		require.NoError(t, err)
+	})
+
+	t.Run("disallow tokens used >10 seconds before issuance", func(t *testing.T) {
+		now := time.Now()
+		tokenWithClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, HagallUserClaim{
+			RegisteredClaims: jwt.RegisteredClaims{
+				Issuer:    "HDS",
+				Subject:   "",
+				IssuedAt:  jwt.NewNumericDate(now.Add(11 * time.Second)),
+				ExpiresAt: jwt.NewNumericDate(now.Add(1 * time.Minute)),
+				ID:        uuid.NewString(),
+			},
+			AppKey: "0x0",
+		})
+
+		token, err := tokenWithClaims.SignedString([]byte(secret))
+		require.NoError(t, err)
+
+		err = VerifyHagallUserAccessToken(token, secret)
+		require.Error(t, err)
+		require.Contains(t, err.Error(), "token used before issued")
+	})
+
 	t.Run("legacy verification from user token", func(t *testing.T) {
 		token, err := GenerateHagallUserAccessToken(
 			"0x0",
