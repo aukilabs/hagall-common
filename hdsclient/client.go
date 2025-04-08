@@ -270,7 +270,7 @@ func (c *Client) HandleServerRegistration(w http.ResponseWriter, r *http.Request
 //
 // This handler is meant to be used by a Hagall server under the /health path.
 func (c *Client) HandleHealthCheck(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
+	if r.Method != http.MethodGet && r.Method != http.MethodHead {
 		httpcmn.MethodNotAllowed(w)
 		return
 	}
