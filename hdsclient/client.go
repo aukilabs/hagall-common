@@ -275,17 +275,22 @@ func (c *Client) HandleHealthCheck(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token, err := httpcmn.SignIdentity(c.HagallEndpoint, c.Secret())
-	if err != nil {
-		httpcmn.InternalServerError(w, errors.New("signing response failed").Wrap(err))
-		return
+	userAgent := r.Header.Get("User-Agent")
+	if strings.HasPrefix(userAgent, "HDS v") {
+		token, err := httpcmn.SignIdentity(c.HagallEndpoint, c.Secret())
+		if err != nil {
+			nonSensitiveErr := errors.New("failed to sign identity")
+			logs.Error(nonSensitiveErr.Wrap(err))
+			httpcmn.InternalServerError(w, nonSensitiveErr)
+			return
+		}
+
+		w.Header().Set("Authorization", httpcmn.MakeAuthorizationHeader(token))
+		c.SetLastHealthCheck(time.Now())
+		logs.Debug("HDS health check ok")
 	}
 
-	w.Header().Set("Authorization", httpcmn.MakeAuthorizationHeader(token))
 	httpcmn.OK(w)
-
-	c.SetLastHealthCheck(time.Now())
-	logs.Debug("health check ok")
 }
 
 // GetServers returns a list of the closest servers.
