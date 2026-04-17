@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package rosrelay;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "messages/rosrelaypb";
+option csharp_namespace = "Auki.ConjureKit.RosRelay.Protobuf.Gen";
+option objc_class_prefix = "RosRelay";
+
+enum MsgType {
+  MSG_TYPE_ERROR_RESPONSE = 0;
+
+  reserved 1 to 399;
+
+  MSG_TYPE_ROS_TOPIC_PUBLISH_REQUEST = 400;
+  MSG_TYPE_ROS_TOPIC_PUBLISH_RESPONSE = 401;
+  MSG_TYPE_ROS_TOPIC_BROADCAST = 402;
+
+  reserved 500 to max;
+}
+
+// RosTopicPublishRequest is sent by a client to publish a ROS2 topic message
+// through the relay session. The relay treats the payload as opaque bytes —
+// no parsing, validation, or schema awareness.
+message RosTopicPublishRequest {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+
+  // The ROS2 topic name (e.g. "/cmd_vel", "/odom").
+  string topic = 3;
+
+  // The ROS2 message type (e.g. "geometry_msgs/msg/Twist",
+  // "sensor_msgs/msg/CompressedImage").
+  string ros_message_type = 4;
+
+  // The opaque serialized ROS2 message payload (CDR or client's choice).
+  bytes payload = 5;
+
+  // Optional targeted delivery. When set, the relay forwards only to these
+  // participant IDs. When empty, the relay fans out to all other session
+  // participants.
+  repeated uint32 participant_ids = 6;
+}
+
+// RosTopicPublishResponse is returned to the sender to acknowledge receipt.
+message RosTopicPublishResponse {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The id that identifies a request.
+  uint32 request_id = 1337;
+}
+
+// RosTopicBroadcast is the message delivered to other session participants
+// when a ROS2 topic message is published.
+message RosTopicBroadcast {
+  // The type of the message.
+  MsgType type = 1;
+
+  // The time the message is sent.
+  google.protobuf.Timestamp timestamp = 2;
+
+  // The timestamp of the request that triggered the broadcast.
+  google.protobuf.Timestamp origin_timestamp = 3;
+
+  // The ROS2 topic name.
+  string topic = 4;
+
+  // The ROS2 message type.
+  string ros_message_type = 5;
+
+  // The opaque serialized ROS2 message payload.
+  bytes payload = 6;
+
+  // The participant ID of the sender.
+  uint32 origin_participant_id = 7;
+}
