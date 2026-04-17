@@ -22,6 +22,7 @@ proto:
 	@protoc --go_out=. ./messages//vikjapb/vikja.proto
 	@protoc --go_out=. ./messages//odalpb/odal.proto
 	@protoc --go_out=. ./messages//dagazpb/dagaz.proto
+	@protoc --go_out=. ./messages//rosrelaypb/rosrelay.proto
 
 tag: check-version test
 	@echo "\033[94m\n• Tagging ${VERSION}\033[00m"
